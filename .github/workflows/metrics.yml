@@ -17,11 +17,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: gh-pages  
-          
+
       - name: Get metrics
         id: get_metrics
         run: |
           cd docs
+          cd scripts
           python metrics.py
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
