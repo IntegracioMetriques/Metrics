@@ -41,8 +41,8 @@ def main():
         load_env_local(env_path)
     GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
     ORG_TOKEN = os.getenv("ORG_TOKEN")
-    REPO_NAME = os.getenv("GITHUB_REPOSITORY_NAME")
-    REPO_OWMER = os.getenv("GITHUB_REPOSITORY_OWNER")
+    REPO = os.getenv("GITHUB_REPOSITORY")
+    REPO_OWMER,REPO_NAME = os.getenv("GITHUB_REPOSITORY").split("/")
     HEADERS_REPO = {
         "Authorization": f"token {GITHUB_TOKEN}",
         "Content-Type": "application/json"
