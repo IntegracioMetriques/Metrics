@@ -69,7 +69,7 @@ def main():
         members = instance.execute(REPO_OWMER,REPO_NAME,HEADERS_ORG,[],{})
     metrics_path = "../metrics.json"
     if os.path.exists(metrics_path):
-        with open(config_path,'r') as f:
+        with open(metrics_path,'r') as f:
             data = json.load(f)
     else:
         data = {}
