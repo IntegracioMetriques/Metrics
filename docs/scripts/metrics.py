@@ -51,6 +51,7 @@ def main():
         raise FileNotFoundError("Arxiu config.json no trobat.")
 
     validar_config(config)
+    print(config)
     members = []
     if config['members'] == "org":
         instance = api_get_members()
