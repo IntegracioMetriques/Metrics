@@ -26,7 +26,7 @@ jobs:
           python metrics.py
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ORG_TOKEN: ${{ secrets.TOKEN }}
+          ORG_TOKEN: ${{ secrets.ORG_TOKEN }}
           GITHUB_REPOSITORY_NAME: ${{ github.repository.name }}
           GITHUB_REPOSITORY_OWNER: ${{ github.repository.owner.login }}
       #- name: Committing results
