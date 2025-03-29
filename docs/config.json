@@ -1,9 +1,10 @@
 {
-    "scope": "org",
-    "exclude_members": [
+    "metrics_scope": "org",
+    "members":"org", 
+    "excluded_members": [
         "github-actions[bot]"
     ],
-    "exclude_repos": [
+    "excluded_repos": [
         "metrics"
     ]
 }
