@@ -40,6 +40,7 @@ class api_get_commits(APInterface):
             commits_per_member["anonymous"] = anonymous_commits
             commits_per_member["total"] = total_commits
         data["commits"] = commits_per_member
+        print(branches)
         print(commits_per_member)
         print(data)
         return data
