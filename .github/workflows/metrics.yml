@@ -36,3 +36,4 @@ jobs:
           git add docs/metrics.json
           git commit -m "Updated metrics.json" || exit 0
           git push
+
