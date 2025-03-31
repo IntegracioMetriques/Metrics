@@ -15,8 +15,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        #with:
-          #ref: gh-pages  
+        with:
+          ref: gh-pages  
 
       - name: Get metrics
         id: get_metrics
@@ -27,13 +27,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ORG_TOKEN: ${{ secrets.ORG_TOKEN }}
-          GITHUB_REPOSITORY_NAME: ${{ github.repository.name }}
-          GITHUB_REPOSITORY_OWNER: ${{ github.repository.owner.login }}
-      #- name: Committing results
-      #  run: |
-      #    git config --global user.name "github-actions[bot]"
-      #    git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          GITHUB_REPOSITORY: ${{ github.repository}}
+      - name: Committing results
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      #    git add docs/metrics.json
-      #    git commit -m "Updated metrics.json" || exit 0
-      #    git push
+          git add docs/metrics.json
+          git commit -m "Updated metrics.json" || exit 0
+          git push
+

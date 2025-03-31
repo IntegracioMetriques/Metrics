@@ -2,7 +2,7 @@ from .APInterface import APInterface
 import requests
 
 class api_get_collaborators(APInterface):
-    def execute(self, owner_name, repo_name, headers, data):
+    def execute(self, owner_name, repo_name, headers, members, data):
         url = f"https://api.github.com/repos/{owner_name}/{repo_name}/collaborators"
         response = requests.get(url, headers=headers)
 
