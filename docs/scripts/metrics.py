@@ -70,7 +70,10 @@ def main():
     metrics_path = "../metrics.json"
     if os.path.exists(metrics_path):
         with open(metrics_path,'r') as f:
-            data = json.load(f)
+            try:
+                data = json.load(f)
+            except json.JSONDecodeError:
+                data = {}
     else:
         data = {}
 
