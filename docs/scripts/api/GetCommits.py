@@ -1,7 +1,7 @@
 from .APInterface import APInterface
 import requests
-
-class api_get_commits(APInterface):
+import concurrent.futures
+class GetCommits(APInterface):
     def get_branches(self,headers,repo_name,owner_name):
         url = f"https://api.github.com/repos/{owner_name}/{repo_name}/branches"
         response = requests.get(url, headers=headers)
@@ -25,8 +25,10 @@ class api_get_commits(APInterface):
                                 name 
                                 }
                                 additions  
-                                deletions 
-                                changedFiles  
+                                deletions
+                                parents(first: 1) {
+                                    totalCount
+                                }
                             }
                             }
                             pageInfo {
@@ -43,7 +45,6 @@ class api_get_commits(APInterface):
             
             response = requests.post(url, json={'query': query}, headers=header)
             data_graphql = response.json()
-            
             if 'data' in data_graphql:
                 commits_data_graphql = data_graphql['data']['repository']['ref']['target']['history']['edges']
                 page_info = data_graphql['data']['repository']['ref']['target']['history']['pageInfo']
@@ -55,7 +56,7 @@ class api_get_commits(APInterface):
                     additions = commit['additions']
                     deletions = commit['deletions']
                     modified_lines = additions + deletions
-                    if sha not in data:
+                    if sha not in data and commit['parents']['totalCount'] <= 1:
                         data[sha] = {
                             "author": autor,
                             "additions": additions,
@@ -69,47 +70,17 @@ class api_get_commits(APInterface):
                     break
         
         return data
-
-    def execute(self, owner_name, repo_name, headers, members, data):
+    def execute(self, owner_name, repo_name, headers, data):
         branches = self.get_branches(headers,repo_name,owner_name)
-        commits_per_member = {member: 0 for member in members}
-        modified_lines_per_member = {
-                member: {
-                    "additions": 0,
-                    "deletions": 0,
-                    "modified": 0
-                }
-            for member in members
-            }
-        anonymous_commits = 0    
-        total_commits = 0
-        total_additions = 0
-        total_deletions = 0
-        total_modified = 0
-        data = {}
         commits = {}
-        for branch in branches:
-            commits = self.query_graphql(owner_name, repo_name,branch,headers,commits)
-        for _,commit in commits.items():
-            if commit['author'] in commits_per_member:
-                commits_per_member[commit['author']] +=1
-                modified_lines_per_member[commit['author']]['additions'] += commit['additions']
-                total_additions += commit['additions'] 
-                modified_lines_per_member[commit['author']]['deletions'] += commit['deletions']
-                total_deletions += commit['deletions'] 
-                modified_lines_per_member[commit['author']]['modified'] += commit['modified']
-                total_modified += commit['modified']
-                total_commits +=1
-            elif commit['author'] != "github-actions[bot]":
-                anonymous_commits += 1
-                total_commits +=1
-        commits_per_member["anonymous"] = anonymous_commits
-        commits_per_member["total"] = total_commits
-        modified_lines_per_member["total"] = {
-                    "additions": total_additions,
-                    "deletions": total_deletions,
-                    "modified": total_modified
-                }
-        data["commits"] = commits_per_member
-        data["modified_lines"] = modified_lines_per_member
+        def process_branch(branch):
+            return self.query_graphql(owner_name, repo_name, branch, headers, {})
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+            results = list(executor.map(process_branch, branches))
+                
+                
+        for result in results:
+            commits.update(result)
+        data["commits"] = commits
         return data
