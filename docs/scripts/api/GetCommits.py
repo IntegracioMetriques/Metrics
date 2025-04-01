@@ -1,6 +1,7 @@
 from .APInterface import APInterface
 import requests
 import concurrent.futures
+
 class GetCommits(APInterface):
     def get_branches(self,headers,repo_name,owner_name):
         url = f"https://api.github.com/repos/{owner_name}/{repo_name}/branches"
@@ -73,14 +74,17 @@ class GetCommits(APInterface):
     def execute(self, owner_name, repo_name, headers, data):
         branches = self.get_branches(headers,repo_name,owner_name)
         commits = {}
-        def process_branch(branch):
-            return self.query_graphql(owner_name, repo_name, branch, headers, {})
+        if self.par:
+            def process_branch(branch):
+                return self.query_graphql(owner_name, repo_name, branch, headers, {})
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
-            results = list(executor.map(process_branch, branches))
+            with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+                results = list(executor.map(process_branch, branches))
+            for result in results:
+                commits.update(result)
+        else :
+            for branch in branches:
+                commits.update(self.query_graphql(owner_name, repo_name, branch, headers, {}))
                 
-                
-        for result in results:
-            commits.update(result)
         data["commits"] = commits
         return data

@@ -47,6 +47,9 @@ def main():
     ORG_TOKEN = os.getenv("ORG_TOKEN")
     REPO = os.getenv("GITHUB_REPOSITORY")
     REPO_OWNER,REPO_NAME = os.getenv("GITHUB_REPOSITORY").split("/")
+    parallelism_str = os.getenv("PARALLELISM")
+    PARALLELISM = parallelism_str == "True"
+    print(PARALLELISM)   
     HEADERS_REPO = {
         "Authorization": f"token {GITHUB_TOKEN}",
         "Content-Type": "application/json"
@@ -68,7 +71,7 @@ def main():
     instances = []
     for class_name, class_obj in api.__dict__.items():
         if isinstance(class_obj, type) and class_name.startswith("Get") and class_name not in ["GetMembers","GetCollaborators"]:
-            instances.append(class_obj())
+            instances.append(class_obj(PARALLELISM))
     data = {}
     if config['members'] == "org": instances.append(GetMembers())
     else: instances.append(GetCollaborators())
