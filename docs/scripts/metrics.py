@@ -1,7 +1,11 @@
 import os
 import json
 import api
-from api import api_get_members, api_get_collaborators
+import metricsCollectors
+import concurrent.futures
+from api import GetCollaborators,GetMembers
+
+PARALLELISM = True
 
 required_fields = {
     "metrics_scope": str,
@@ -42,7 +46,10 @@ def main():
     GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
     ORG_TOKEN = os.getenv("ORG_TOKEN")
     REPO = os.getenv("GITHUB_REPOSITORY")
-    REPO_OWMER,REPO_NAME = os.getenv("GITHUB_REPOSITORY").split("/")
+    REPO_OWNER,REPO_NAME = os.getenv("GITHUB_REPOSITORY").split("/")
+    parallelism_str = os.getenv("PARALLELISM")
+    PARALLELISM = parallelism_str == "True"
+    print(PARALLELISM)   
     HEADERS_REPO = {
         "Authorization": f"token {GITHUB_TOKEN}",
         "Content-Type": "application/json"
@@ -59,33 +66,35 @@ def main():
     else:
         raise FileNotFoundError("Arxiu config.json no trobat.")
     validar_config(config)
-
-    members = []
-    if config['members'] == "org":
-        instance = api_get_members()
-        members = instance.execute(REPO_OWMER,REPO_NAME,HEADERS_ORG,[],{})
-    else: 
-        instance = api_get_collaborators()
-        members = instance.execute(REPO_OWMER,REPO_NAME,HEADERS_ORG,[],{})
+    
     metrics_path = "../metrics.json"
-    if os.path.exists(metrics_path):
-        with open(metrics_path,'r') as f:
-            try:
-                data = json.load(f)
-            except json.JSONDecodeError:
-                data = {}
-    else:
-        data = {}
-
     instances = []
     for class_name, class_obj in api.__dict__.items():
-        if isinstance(class_obj, type) and class_name.startswith("api") and class_name not in ["api_get_collaborators","api_get_members"]:
-            instances.append(class_obj())
+        if isinstance(class_obj, type) and class_name.startswith("Get") and class_name not in ["GetMembers","GetCollaborators"]:
+            instances.append(class_obj(PARALLELISM))
+    data = {}
+    if config['members'] == "org": instances.append(GetMembers())
+    else: instances.append(GetCollaborators())
+    if not PARALLELISM:
+        pass
+        for instance in instances:
+            data = instance.execute(REPO_OWNER,REPO_NAME,HEADERS_ORG,data)
+    else:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+            futures = [executor.submit(instance.execute, REPO_OWNER, REPO_NAME, HEADERS_ORG, data) for instance in instances]
 
+            for future in concurrent.futures.as_completed(futures):
+                data = future.result()
+    instances = []
+    for class_name, class_obj in metricsCollectors.__dict__.items():
+        if isinstance(class_obj, type) and class_name.startswith('Collect') and not bool(getattr(class_obj, "__abstractmethods__", False)):
+            instances.append(class_obj())
+    members = data['members']  
+    metrics = {}
     for instance in instances:
-       data = instance.execute(REPO_OWMER,REPO_NAME,HEADERS_ORG,members,data)
-    
+       metrics = instance.execute(data,metrics,members)
     with open(metrics_path, "w") as f:
-        json.dump(data, f, indent=4)
+        json.dump(metrics, f, indent=4)
+
 if __name__ == "__main__":
     main()
