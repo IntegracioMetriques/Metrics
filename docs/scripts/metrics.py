@@ -49,7 +49,6 @@ def main():
     REPO_OWNER,REPO_NAME = os.getenv("GITHUB_REPOSITORY").split("/")
     parallelism_str = os.getenv("PARALLELISM")
     PARALLELISM = parallelism_str == "True"
-    print(PARALLELISM)   
     HEADERS_REPO = {
         "Authorization": f"token {GITHUB_TOKEN}",
         "Content-Type": "application/json"

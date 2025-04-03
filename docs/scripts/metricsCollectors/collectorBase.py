@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-class collectorBase(ABC):
+class CollectorBase(ABC):
     @abstractmethod
-    def execute(self,data: dict,metricsmembers) -> dict:
+    def execute(self, data: dict, metrics: dict, members) -> dict:
         pass
