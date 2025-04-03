@@ -71,7 +71,8 @@ class GetCommits(APInterface):
                     break
         
         return data
-    def execute(self, owner_name, repo_name, headers, data):
+    
+    def execute(self, owner_name, repo_name, headers, data: dict) -> dict:
         branches = self.get_branches(headers,repo_name,owner_name)
         commits = {}
         if self.par:

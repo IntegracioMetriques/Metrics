@@ -3,7 +3,7 @@ import requests
 import json
 
 class GetIssuesAndPRs(APInterface):
-    def execute(self, owner_name, repo_name, headers, data):
+    def execute(self, owner_name, repo_name, headers, data: dict) -> dict:
         page = 1
         issues = {}
         pull_requests = {}

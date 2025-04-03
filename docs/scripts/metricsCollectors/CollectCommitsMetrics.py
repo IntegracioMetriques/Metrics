@@ -1,7 +1,7 @@
-from .collectorBase import collectorBase
+from .CollectorBase import CollectorBase
 
-class CollectCommitsMetrics(collectorBase):
-    def execute(self,data,metrics,members):
+class CollectCommitsMetrics(CollectorBase):
+    def execute(self, data: dict, metrics: dict, members) -> dict:
         commits = data['commits']
         commits_per_member = {member: 0 for member in members}
         modified_lines_per_member = {
