@@ -87,5 +87,8 @@ class GetCommits(APInterface):
             for branch in branches:
                 commits.update(self.query_graphql(owner_name, repo_name, branch, headers, {}))
                 
-        data["commits"] = commits
+        if "commits" in data:
+            data["commits"].update(commits)
+        else:
+            data["commits"] = commits
         return data

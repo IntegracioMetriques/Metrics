@@ -1,6 +1,5 @@
 from .APInterface import APInterface
 import requests
-import json
 
 class GetIssuesAndPRs(APInterface):
     def execute(self, owner_name, repo_name, headers, data: dict) -> dict:
@@ -38,7 +37,15 @@ class GetIssuesAndPRs(APInterface):
                         "assignees": assignees,
                         "state": issue_data['state']
                         }
-            page += 1     
-        data['issues'] = issues
-        data['pull_requests'] = pull_requests
+            page += 1
+
+        if "issues" in data:
+            data["issues"].update(issues)
+        else:
+            data["issues"] = issues
+
+        if "pull_requests" in data:
+            data["pull_requests"].update(pull_requests)
+        else:
+            data["pull_requests"] = pull_requests
         return data
