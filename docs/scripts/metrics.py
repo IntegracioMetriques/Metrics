@@ -88,8 +88,14 @@ def main():
     instances = []
     if config['metrics_scope'] == "org":
         instancesConfig = []
+        instancesConfig.append(GetOrgRepos())
+        instancesConfig.append(GetMembers())
         data = GetOrgRepos().execute(REPO_OWNER,"",HEADERS_ORG,data)
-        instances.append(GetMembers())
+        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+            futures = [executor.submit(instance.execute,REPO_OWNER,"",HEADERS_ORG,data) for instance in instancesConfig]
+            for future in concurrent.futures.as_completed(futures):
+                data.update(future.result())  
+        if(config["members"] == "both"): instances.append(GetCollaborators())
         repos = [m for m in data['repos'] if m not in config['excluded_repos']]
         HEADERS = HEADERS_ORG
     else:
@@ -99,7 +105,6 @@ def main():
         elif config["members"] == "org": 
             instances.append(GetMembers())
             HEADERS = HEADERS_ORG
-
         elif config["members"] == "both":
             instances.append(GetMembers())
             instances.append(GetCollaborators())
@@ -107,7 +112,7 @@ def main():
         repos = [REPO_NAME]
 
     for class_name, class_obj in api.__dict__.items():
-        if isinstance(class_obj, type) and class_name.startswith("Get") and class_name not in ["GetMembers","GetCollaborators"]:
+        if isinstance(class_obj, type) and class_name.startswith("Get") and class_name not in ["GetMembers","GetCollaborators","GetOrgRepos"]:
             instances.append(class_obj(PARALLELISM))
     if not PARALLELISM:
         for repo in repos:
@@ -115,7 +120,7 @@ def main():
             combinar_resultats(result,data)    
     else:
         with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
-            futures = [executor.submit(get_metrics, repo, instances, HEADERS) for repo in repos] # no va bien
+            futures = [executor.submit(get_metrics, repo, instances, HEADERS) for repo in repos]
 
             for future in concurrent.futures.as_completed(futures):
                 combinar_resultats(future.result(),data)    
