@@ -71,6 +71,8 @@ class GetCommits(APInterface):
                     cursor = page_info['endCursor']
                 else:
                     break
+            else:
+                break
         
         return data
     
