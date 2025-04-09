@@ -1,7 +1,64 @@
 from .APInterface import APInterface
 import requests
 
-class GetIssuesAndPRs(APInterface):
+class GetIssues(APInterface):
+
+    def query_graphql(self,owner_name, repo_name, headers):
+        url = "https://api.github.com/graphql"
+        cursor = None
+        data = {}
+        while True:
+            query = """
+            {
+            repository(owner: "%s", name: "%s") {
+                issues(first: 100%s) {
+                nodes {
+                    id
+                    state
+                    assignees(first: 1) {
+                    nodes {
+                        login
+                    }
+                    }
+                    pullRequests(first: 1) {
+                    totalCount
+                    }
+                }
+                pageInfo {
+                    hasNextPage
+                    endCursor
+                }
+                }
+            }
+            }
+            """ % (owner_name, repo_name,f', after: "{cursor}"' if cursor else "")
+
+            response = requests.post(url, json={'query': query}, headers=headers)
+            if response.status_code != 200:
+                raise  requests.RequestException(f"Error al fer la trucada a {self.__class__.__name__}: {response.status_code}")
+            data_graphql = response.json()
+
+            if 'data' in data_graphql:
+                issues_data = data_graphql['data']['repository']['issues']['nodes']
+                page_info = data_graphql['data']['repository']['issues']['pageInfo']
+
+                for issue in issues_data:
+                    state =  issue["state"]
+                    assignee = issue['assignees']['nodes'][0]['login']
+                    has_pr = issue['pullRequests']['totalCount'] > 0
+                    data["id"] = {
+                        "state": state,
+                        "assignee": assignee,
+                        "has_pull_request": has_pr
+                    }
+
+                if page_info['hasNextPage']:
+                    cursor = page_info['endCursor']
+                else:
+                    break
+
+        return data
+
     def execute(self, owner_name, repo_name, headers, data: dict) -> dict:
         page = 1
         issues = {}
