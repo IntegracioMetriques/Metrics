@@ -3,10 +3,31 @@ import json
 import api
 import metricsCollectors
 import concurrent.futures
-from api import GetCollaborators,GetMembers
+from api import GetCollaborators,GetMembers,GetOrgRepos
 
-PARALLELISM = True
+def load_env_local(path):
+    with open(path, 'r') as f:
+        variables = json.load(f)
+        for key, value in variables.items():
+            os.environ[key] = value
 
+env_path = "env.json"
+if os.path.exists(env_path):
+    load_env_local(env_path)
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
+ORG_TOKEN = os.getenv("ORG_TOKEN")
+REPO = os.getenv("GITHUB_REPOSITORY")
+REPO_OWNER,REPO_NAME = os.getenv("GITHUB_REPOSITORY").split("/")
+parallelism_str = os.getenv("PARALLELISM")
+PARALLELISM = parallelism_str == "True"
+HEADERS_REPO = {
+    "Authorization": f"token {GITHUB_TOKEN}",
+    "Content-Type": "application/json"
+        }
+HEADERS_ORG = {
+    "Authorization": f"token {ORG_TOKEN}",
+    "Content-Type": "application/json"
+    }
 required_fields = {
     "metrics_scope": str,
     "members": str,
@@ -15,16 +36,10 @@ required_fields = {
 }
 
 valid_metrics_scope = ["org","repo"]
-valid_members = ["org","repo"]
+valid_members = ["org","repo","both"]
 
 class ConfigError(Exception):
     pass
-
-def load_env_local(path):
-    with open(path, 'r') as f:
-        variables = json.load(f)
-        for key, value in variables.items():
-            os.environ[key] = value
 
 def validar_config(config):
     for field,data_type in required_fields.items():
@@ -37,27 +52,31 @@ def validar_config(config):
         raise ConfigError(f"Error: El camp obligatori 'metrics_scope' de config.json no té un valor vàlid. Valors vàlids: {valid_metrics_scope}")
     if config["members"] not in valid_members:
         raise ConfigError(f"Error: El camp obligatori 'members' de config.json no té un valor vàlid. Valors vàlids: {valid_members}")
+    
+def get_metrics(repo,instances,headers):
+    local_data = {}
+    if not PARALLELISM:
+        for instance in instances:
+            local_data = instance.execute(REPO_OWNER,repo,headers,local_data)
+    else:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+            futures = [executor.submit(instance.execute, REPO_OWNER, repo, headers, local_data) for instance in instances]
 
+            for future in concurrent.futures.as_completed(futures):
+                local_data = future.result()
+    return local_data
+
+def combinar_resultats(result,data): 
+    for key, value in result.items():
+        if key in data and isinstance(data[key], dict) and isinstance(value, dict):
+            data[key].update(value)
+        elif key in data and isinstance(data[key], list) and isinstance(value, list):
+            data[key].extend(value)
+        else:
+            data[key] = value  
+    return data
 
 def main():
-    env_path = "env.json"
-    if os.path.exists(env_path):
-        load_env_local(env_path)
-    GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
-    ORG_TOKEN = os.getenv("ORG_TOKEN")
-    REPO = os.getenv("GITHUB_REPOSITORY")
-    REPO_OWNER,REPO_NAME = os.getenv("GITHUB_REPOSITORY").split("/")
-    parallelism_str = os.getenv("PARALLELISM")
-    PARALLELISM = parallelism_str == "True"
-    HEADERS_REPO = {
-        "Authorization": f"token {GITHUB_TOKEN}",
-        "Content-Type": "application/json"
-        }
-    HEADERS_ORG = {
-        "Authorization": f"token {ORG_TOKEN}",
-        "Content-Type": "application/json"
-        }
-
     config_path = "../config.json"
     if os.path.exists(config_path):
         with open(config_path,'r') as f:
@@ -65,33 +84,57 @@ def main():
     else:
         raise FileNotFoundError("Arxiu config.json no trobat.")
     validar_config(config)
-    
-    metrics_path = "../metrics.json"
-    instances = []
-    for class_name, class_obj in api.__dict__.items():
-        if isinstance(class_obj, type) and class_name.startswith("Get") and class_name not in ["GetMembers","GetCollaborators"]:
-            instances.append(class_obj(PARALLELISM))
     data = {}
-    if config['members'] == "org": instances.append(GetMembers())
-    else: instances.append(GetCollaborators())
+    instances = []
+    if config['metrics_scope'] == "org":
+        instancesConfig = []
+        instancesConfig.append(GetOrgRepos())
+        instancesConfig.append(GetMembers())
+        data = GetOrgRepos().execute(REPO_OWNER,"",HEADERS_ORG,data)
+        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+            futures = [executor.submit(instance.execute,REPO_OWNER,"",HEADERS_ORG,data) for instance in instancesConfig]
+            for future in concurrent.futures.as_completed(futures):
+                data.update(future.result())  
+        if(config["members"] == "both"): instances.append(GetCollaborators())
+        repos = [m for m in data['repos'] if m not in config['excluded_repos']]
+        HEADERS = HEADERS_ORG
+    else:
+        if config["members"] == "repo": 
+            instances.append(GetCollaborators())
+            HEADERS = HEADERS_REPO
+        elif config["members"] == "org": 
+            instances.append(GetMembers())
+            HEADERS = HEADERS_ORG
+        elif config["members"] == "both":
+            instances.append(GetMembers())
+            instances.append(GetCollaborators())
+            HEADERS = HEADERS_ORG
+        repos = [REPO_NAME]
+
+    for class_name, class_obj in api.__dict__.items():
+        if isinstance(class_obj, type) and class_name.startswith("Get") and class_name not in ["GetMembers","GetCollaborators","GetOrgRepos"]:
+            instances.append(class_obj(PARALLELISM))
     if not PARALLELISM:
-        pass
-        for instance in instances:
-            data = instance.execute(REPO_OWNER,REPO_NAME,HEADERS_ORG,data)
+        for repo in repos:
+            result = get_metrics(repo,instances,HEADERS) 
+            combinar_resultats(result,data)    
     else:
         with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
-            futures = [executor.submit(instance.execute, REPO_OWNER, REPO_NAME, HEADERS_ORG, data) for instance in instances]
+            futures = [executor.submit(get_metrics, repo, instances, HEADERS) for repo in repos]
 
             for future in concurrent.futures.as_completed(futures):
-                data = future.result()
+                combinar_resultats(future.result(),data)    
+    members = data['members']  
+    members = [m for m in members if m not in config['excluded_members']]
     instances = []
     for class_name, class_obj in metricsCollectors.__dict__.items():
         if isinstance(class_obj, type) and class_name.startswith('Collect') and not bool(getattr(class_obj, "__abstractmethods__", False)):
             instances.append(class_obj())
-    members = data['members']  
     metrics = {}
     for instance in instances:
        metrics = instance.execute(data,metrics,members)
+
+    metrics_path = "../metrics.json"
     with open(metrics_path, "w") as f:
         json.dump(metrics, f, indent=4)
 
