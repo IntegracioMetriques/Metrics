@@ -45,6 +45,8 @@ class GetCommits(APInterface):
                 """ % (owner_name, repo_name, branch_name, f', after: "{cursor}"' if cursor else "")            
             
             response = requests.post(url, json={'query': query}, headers=header)
+            if response.status_code != 200:
+                raise  requests.RequestException(f"Error al fer la trucada a {self.__class__.__name__}: {response.status_code}")
             data_graphql = response.json()
             if 'data' in data_graphql:
                 commits_data_graphql = data_graphql['data']['repository']['ref']['target']['history']['edges']
@@ -69,6 +71,8 @@ class GetCommits(APInterface):
                     cursor = page_info['endCursor']
                 else:
                     break
+            else:
+                break
         
         return data
     

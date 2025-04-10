@@ -123,7 +123,7 @@ def main():
             futures = [executor.submit(get_metrics, repo, instances, HEADERS) for repo in repos]
 
             for future in concurrent.futures.as_completed(futures):
-                combinar_resultats(future.result(),data)    
+                combinar_resultats(future.result(),data)
     members = data['members']  
     members = [m for m in members if m not in config['excluded_members']]
     instances = []
