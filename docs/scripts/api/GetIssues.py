@@ -1,6 +1,5 @@
 from .APInterface import APInterface
 import requests
-
 class GetIssues(APInterface):
     def execute(self, owner_name, repo_name, headers, data: dict) -> dict:
         url = "https://api.github.com/graphql"
@@ -21,6 +20,11 @@ class GetIssues(APInterface):
                     }
                     closedByPullRequestsReferences(first: 1) {
                             totalCount
+                            nodes {
+                                author {
+                                    login
+                                }
+                        }
                     }
                 }
                 pageInfo {
@@ -45,10 +49,13 @@ class GetIssues(APInterface):
                     assignees = issue['assignees']['nodes']
                     assignee = assignees[0]['login'] if assignees else None
                     has_pr = issue['closedByPullRequestsReferences']['totalCount'] > 0
+                    pr_author = issue['closedByPullRequestsReferences']['nodes'][0]['author']['login'] if has_pr else None
+                    pr_author_is_assignee = pr_author == assignee if has_pr else None
                     issues[issue_id] = {
                         "state": state,
                         "assignee": assignee,
-                        "has_pull_request": has_pr
+                        "has_pull_request": has_pr,
+                        "pr_author_is_assignee": pr_author_is_assignee
                     }
                 if page_info['hasNextPage']:
                     cursor = page_info['endCursor']
