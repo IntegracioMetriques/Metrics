@@ -13,6 +13,9 @@ class GetPullRequests(APInterface):
                 pullRequests(first: 100%s) {
                 nodes {
                     id
+                    author {
+                        login
+                    }
                     state
                     merged
                     mergedBy {
@@ -37,12 +40,14 @@ class GetPullRequests(APInterface):
                 page_info = data_graphql['data']['repository']['pullRequests']['pageInfo']
                 for pr in pr_data:
                     pr_id = pr['id']
+                    author = pr["author"]["login"]
                     state = pr['state']
                     merged = pr['merged']
                     merged_by = pr['mergedBy']['login'] if merged else None
 
                     pull_requests[pr_id] = {
                         "state": state,
+                        "author": author,
                         "merged": merged,
                         "merged_by": merged_by
                     }
