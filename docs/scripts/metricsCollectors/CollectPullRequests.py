@@ -13,7 +13,7 @@ class CollectPullRequests(CollectorBase):
                 merged += 1
                 if pull_request["author"] != pull_request["merged_by"]:
                     not_merged_by_author +=1
-            elif pull_request['state'] == 'closed': # Quan merged, state es 'closed'
+            elif pull_request['state'] == 'CLOSED': # Quan merged, state es 'closed'
                 closed += 1
         metrics['pull_requests'] = {
             'merged': merged,

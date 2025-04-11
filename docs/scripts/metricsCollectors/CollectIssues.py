@@ -11,11 +11,12 @@ class CollectIssues(CollectorBase):
         total = 0
         total_closed = 0
         for _,issue in issues.items():
+            if issue['state'] == 'CLOSED':
+                total_closed += 1
             if issue['assignee'] != None and issue['assignee'] in members:
                 assigned_issues_per_member[issue['assignee']] +=1
                 if issue['state'] == 'CLOSED':
                     closed_assigned_issues_per_member[issue['assignee']] += 1
-                    total_closed += 1
                     if issue["has_pull_request"] == True : 
                         have_pr += 1
                         if issue["pr_author_is_assignee"] == True:
