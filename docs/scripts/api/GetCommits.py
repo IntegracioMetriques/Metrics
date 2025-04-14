@@ -1,6 +1,7 @@
 from .APInterface import APInterface
 import requests
 import concurrent.futures
+from datetime import datetime
 
 class GetCommits(APInterface):
     def get_branches(self,headers,repo_name,owner_name):
@@ -27,6 +28,7 @@ class GetCommits(APInterface):
                                 }
                                 additions  
                                 deletions
+                                committedDate
                                 parents(first: 1) {
                                     totalCount
                                 }
@@ -58,13 +60,15 @@ class GetCommits(APInterface):
                     autor = commit['author']['name']
                     additions = commit['additions']
                     deletions = commit['deletions']
+                    date =  datetime.strptime(commit['committedDate'], "%Y-%m-%dT%H:%M:%SZ").strftime("%Y-%m-%d")
                     modified_lines = additions + deletions
                     if sha not in data and commit['parents']['totalCount'] <= 1:
                         data[sha] = {
                             "author": autor,
                             "additions": additions,
                             "deletions": deletions,
-                            "modified": modified_lines
+                            "modified": modified_lines,
+                            "date": date
                         }
 
                 if page_info['hasNextPage']:
