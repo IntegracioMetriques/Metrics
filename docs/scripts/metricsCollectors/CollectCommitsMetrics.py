@@ -68,5 +68,5 @@ class CollectCommitsMetrics(CollectorBase):
             if member not in metrics.get('longest_commit_streak_per_user', {}):
                 metrics.setdefault('longest_commit_streak_per_user', {})[member] = streak
             else:
-                metrics['longest_commit_streak_per_user'][member] = max(metrics['longest_commit_streak'][member], streak)
+                metrics['longest_commit_streak_per_user'][member] = max(metrics['longest_commit_streak_per_user'][member], streak)
         return metrics
