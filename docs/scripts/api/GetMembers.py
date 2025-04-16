@@ -10,4 +10,5 @@ class GetMembers(APInterface):
             raise  requests.RequestException(f"Error al fer la trucada a {self.__class__.__name__}: {response.status_code}")
         members_data = response.json()
         data['members'] = [obj['login'] for obj in members_data]
+        data['members_images'] = {obj['login']: obj['avatar_url'] for obj in members_data}
         return data
