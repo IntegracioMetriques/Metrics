@@ -84,6 +84,15 @@ def main():
     else:
         raise FileNotFoundError("Arxiu config.json no trobat.")
     validar_config(config)
+    metrics_path = "../metrics.json"
+    if os.path.exists(metrics_path):
+        try:
+            with open(metrics_path, "r") as j:
+                metrics = json.load(j)
+        except (json.JSONDecodeError, ValueError):
+            metrics = {}
+    else:
+        metrics = {}
     data = {}
     instances = []
     if config['metrics_scope'] == "org":
@@ -91,7 +100,7 @@ def main():
         instancesConfig.append(GetOrgRepos())
         instancesConfig.append(GetMembers())
         data = GetOrgRepos().execute(REPO_OWNER,"",HEADERS_ORG,data)
-        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
             futures = [executor.submit(instance.execute,REPO_OWNER,"",HEADERS_ORG,data) for instance in instancesConfig]
             for future in concurrent.futures.as_completed(futures):
                 data.update(future.result())  
@@ -130,11 +139,8 @@ def main():
     for class_name, class_obj in metricsCollectors.__dict__.items():
         if isinstance(class_obj, type) and class_name.startswith('Collect') and not bool(getattr(class_obj, "__abstractmethods__", False)):
             instances.append(class_obj())
-    metrics = {}
     for instance in instances:
        metrics = instance.execute(data,metrics,members)
-
-    metrics_path = "../metrics.json"
     with open(metrics_path, "w") as f:
         json.dump(metrics, f, indent=4)
 
