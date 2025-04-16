@@ -35,20 +35,25 @@ class CollectCommitsMetrics(CollectorBase):
                 anonymous_commits += 1
                 total_commits +=1
         today = datetime.now(timezone.utc).date()
+        yesterday = today - timedelta(days=1)
         for member, dates in commit_dates.items():
-            unique_dates = sorted(set(dates), reverse=True)
-            expected = today
-            streak = 0
-            for date in unique_dates:
-                if date == expected:
-                    streak += 1
-                    expected -= timedelta(days=1)
-                elif date == expected - timedelta(days=1):
-                    break 
-                else:
-                    break
-            streaks_per_member[member] = streak
+            unique_dates = set(dates)  
 
+            if today in unique_dates:
+                streak = 1
+                day = yesterday
+                while day in unique_dates:
+                    streak += 1
+                    day -= timedelta(days=1)
+            elif yesterday in unique_dates:
+                streak = 1
+                day = yesterday - timedelta(days=1)
+                while day in unique_dates:
+                    streak += 1
+                    day -= timedelta(days=1)
+            else:
+                streak = 0
+            streaks_per_member[member] = streak
         commits_per_member["anonymous"] = anonymous_commits
         commits_per_member["total"] = total_commits
         modified_lines_per_member["total"] = {
@@ -58,5 +63,10 @@ class CollectCommitsMetrics(CollectorBase):
                 }
         metrics["commits"] = commits_per_member
         metrics["modified_lines"] = modified_lines_per_member
-        metrics["commit_streak"] = streaks_per_member
+        metrics["commit_streak"] = streaks_per_member    
+        for member, streak in streaks_per_member.items():
+            if member not in metrics.get('longest_commit_streak_per_user', {}):
+                metrics.setdefault('longest_commit_streak_per_user', {})[member] = streak
+            else:
+                metrics['longest_commit_streak_per_user'][member] = max(metrics['longest_commit_streak'][member], streak)
         return metrics
