@@ -1,6 +1,9 @@
 from abc import ABC, abstractmethod
 
 class APInterface(ABC):
+    def __init__(self, par=False):
+        self.par = par
+
     @abstractmethod
-    def execute(self, owner_name ,repo_name,headers, members, data: dict) -> dict:
+    def execute(self, owner_name, repo_name, headers, data: dict) -> dict:
         pass
