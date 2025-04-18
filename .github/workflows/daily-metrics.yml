@@ -1,4 +1,4 @@
-name: Daily Metrics
+name: Daily
 on:
   #push:
   #issues:
