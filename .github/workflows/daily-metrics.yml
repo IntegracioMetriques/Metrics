@@ -1,8 +1,9 @@
 name: Daily Metrics
 on:
+  #push:
+  #issues:
+    #types: [opened, edited, closed]
     workflow_dispatch:
-    schedule:
-      - cron: "0 0 * * *"
 
 permissions:
   contents: write
