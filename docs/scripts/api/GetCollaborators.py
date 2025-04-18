@@ -11,4 +11,5 @@ class GetCollaborators(APInterface):
         
         collaborators_data = response.json()
         data['members'] = [obj['login'] for obj in collaborators_data]
+        data['members_images'] = {obj['login']: obj['avatar_url'] for obj in collaborators_data}
         return data
