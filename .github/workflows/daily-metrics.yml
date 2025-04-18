@@ -1,9 +1,8 @@
-name: Metrics
+name: Daily Metrics
 on:
-  #push:
-  #issues:
-    #types: [opened, edited, closed]
-    workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -23,7 +22,7 @@ jobs:
         run: |
           cd docs
           cd scripts
-          python metrics.py
+          python metrics.py daily
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ORG_TOKEN: ${{ secrets.ORG_TOKEN }}
@@ -34,7 +33,7 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add docs/metrics.json
-          git commit -m "Updated metrics.json" || exit 0
+          git add docs/historic_metrics.json
+          git commit -m "Updated historic_metrics.json" || exit 0
           git push
 
