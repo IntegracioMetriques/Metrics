@@ -1,8 +1,8 @@
 from .APInterface import APInterface
 import requests
 
-class GetCollaborators(APInterface):
-    def execute(self, owner_name, repo_name, headers, data: dict) -> dict:
+class api_get_collaborators(APInterface):
+    def execute(self, owner_name, repo_name, headers, members, data):
         url = f"https://api.github.com/repos/{owner_name}/{repo_name}/collaborators"
         response = requests.get(url, headers=headers)
 
@@ -10,6 +10,5 @@ class GetCollaborators(APInterface):
             raise  requests.RequestException(f"Error al fer la trucada a {self.__class__.__name__}: {response.status_code}")
         
         collaborators_data = response.json()
-        data['members'] = [obj['login'] for obj in collaborators_data]
-        data['members_images'] = {obj['login']: obj['avatar_url'] for obj in collaborators_data}
-        return data
+        collaborators = [obj['login'] for obj in collaborators_data]
+        return collaborators

@@ -1,9 +1,7 @@
 from .APInterface import APInterface
 import requests
-import concurrent.futures
-from datetime import datetime
 
-class GetCommits(APInterface):
+class api_get_commits(APInterface):
     def get_branches(self,headers,repo_name,owner_name):
         url = f"https://api.github.com/repos/{owner_name}/{repo_name}/branches"
         response = requests.get(url, headers=headers)
@@ -27,11 +25,8 @@ class GetCommits(APInterface):
                                 name 
                                 }
                                 additions  
-                                deletions
-                                committedDate
-                                parents(first: 1) {
-                                    totalCount
-                                }
+                                deletions 
+                                changedFiles  
                             }
                             }
                             pageInfo {
@@ -47,9 +42,8 @@ class GetCommits(APInterface):
                 """ % (owner_name, repo_name, branch_name, f', after: "{cursor}"' if cursor else "")            
             
             response = requests.post(url, json={'query': query}, headers=header)
-            if response.status_code != 200:
-                raise  requests.RequestException(f"Error al fer la trucada a {self.__class__.__name__}: {response.status_code}")
             data_graphql = response.json()
+            
             if 'data' in data_graphql:
                 commits_data_graphql = data_graphql['data']['repository']['ref']['target']['history']['edges']
                 page_info = data_graphql['data']['repository']['ref']['target']['history']['pageInfo']
@@ -60,43 +54,62 @@ class GetCommits(APInterface):
                     autor = commit['author']['name']
                     additions = commit['additions']
                     deletions = commit['deletions']
-                    date =  datetime.strptime(commit['committedDate'], "%Y-%m-%dT%H:%M:%SZ").strftime("%Y-%m-%d")
                     modified_lines = additions + deletions
-                    if sha not in data and commit['parents']['totalCount'] <= 1:
+                    if sha not in data:
                         data[sha] = {
                             "author": autor,
                             "additions": additions,
                             "deletions": deletions,
-                            "modified": modified_lines,
-                            "date": date
+                            "modified": modified_lines
                         }
 
                 if page_info['hasNextPage']:
                     cursor = page_info['endCursor']
                 else:
                     break
-            else:
-                break
         
         return data
-    
-    def execute(self, owner_name, repo_name, headers, data: dict) -> dict:
-        branches = self.get_branches(headers,repo_name,owner_name)
-        commits = {}
-        if self.par:
-            def process_branch(branch):
-                return self.query_graphql(owner_name, repo_name, branch, headers, {})
 
-            with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
-                results = list(executor.map(process_branch, branches))
-            for result in results:
-                commits.update(result)
-        else :
-            for branch in branches:
-                commits.update(self.query_graphql(owner_name, repo_name, branch, headers, {}))
-                
-        if "commits" in data:
-            data["commits"].update(commits)
-        else:
-            data["commits"] = commits
+    def execute(self, owner_name, repo_name, headers, members, data):
+        branches = self.get_branches(headers,repo_name,owner_name)
+        commits_per_member = {member: 0 for member in members}
+        modified_lines_per_member = {
+                member: {
+                    "additions": 0,
+                    "deletions": 0,
+                    "modified": 0
+                }
+            for member in members
+            }
+        anonymous_commits = 0    
+        total_commits = 0
+        total_additions = 0
+        total_deletions = 0
+        total_modified = 0
+        data = {}
+        commits = {}
+        for branch in branches:
+            commits = self.query_graphql(owner_name, repo_name,branch,headers,commits)
+        for _,commit in commits.items():
+            if commit['author'] in commits_per_member:
+                commits_per_member[commit['author']] +=1
+                modified_lines_per_member[commit['author']]['additions'] += commit['additions']
+                total_additions += commit['additions'] 
+                modified_lines_per_member[commit['author']]['deletions'] += commit['deletions']
+                total_deletions += commit['deletions'] 
+                modified_lines_per_member[commit['author']]['modified'] += commit['modified']
+                total_modified += commit['modified']
+                total_commits +=1
+            elif commit['author'] != "github-actions[bot]":
+                anonymous_commits += 1
+                total_commits +=1
+        commits_per_member["anonymous"] = anonymous_commits
+        commits_per_member["total"] = total_commits
+        modified_lines_per_member["total"] = {
+                    "additions": total_additions,
+                    "deletions": total_deletions,
+                    "modified": total_modified
+                }
+        data["commits"] = commits_per_member
+        data["modified_lines"] = modified_lines_per_member
         return data

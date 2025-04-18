@@ -2,7 +2,9 @@
     "metrics_scope": "org",
     "members":"org", 
     "excluded_members": [
+        "github-actions[bot]"
     ],
     "excluded_repos": [
+        "metrics"
     ]
 }

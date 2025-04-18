@@ -8,5 +8,5 @@ for _, module_name, _ in pkgutil.iter_modules(__path__):
     for attribute_name in dir(module):  
         attribute = getattr(module, attribute_name)
 
-        if isinstance(attribute, type) and attribute_name.startswith("Get"):
+        if isinstance(attribute, type) and attribute_name.startswith("api"):
             globals()[attribute_name] = attribute
