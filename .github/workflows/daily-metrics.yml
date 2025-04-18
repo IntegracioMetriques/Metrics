@@ -1,5 +1,6 @@
 name: Daily Metrics
 on:
+  push:
   schedule:
     - cron: "24 14 * * *"
   workflow_dispatch:
