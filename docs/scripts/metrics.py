@@ -1,5 +1,7 @@
 import os
+import sys
 import json
+from datetime import datetime,timezone,timedelta
 import api
 import metricsCollectors
 import concurrent.futures
@@ -76,7 +78,38 @@ def combinar_resultats(result,data):
             data[key] = value  
     return data
 
+def daily_metrics():
+    metrics_path = "../metrics.json"
+    historic_metrics_path = "../historic_metrics.json"
+    if os.path.exists(metrics_path):
+        try:
+            with open(metrics_path, "r") as j:
+                metrics = json.load(j)
+        except (json.JSONDecodeError, ValueError):
+            return
+    else:
+        return
+    if os.path.exists(historic_metrics_path):
+        try:
+            with open(historic_metrics_path, "r") as j:
+                historic = json.load(j)
+        except (json.JSONDecodeError, ValueError):
+            historic = {}
+    else:
+        historic = {}
+    date = datetime.now(timezone.utc).date() - timedelta(days=1)
+    historic[date.strftime("%Y-%m-%d")] = metrics
+    with open(historic_metrics_path, "w") as j:
+        json.dump(historic,j,indent=4)
+
 def main():
+    daily_mode = False
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "daily":
+            daily_mode = True
+    if daily_mode:
+        daily_metrics()
+        return
     config_path = "../config.json"
     if os.path.exists(config_path):
         with open(config_path,'r') as f:
