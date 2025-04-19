@@ -1,0 +1,64 @@
+{
+    "2025-04-18": {
+        "commits": {
+            "DidacLinares": 75,
+            "didaclinaresUPC": 0,
+            "anonymous": 0,
+            "total": 75
+        },
+        "modified_lines": {
+            "DidacLinares": {
+                "additions": 6216,
+                "deletions": 921,
+                "modified": 7137
+            },
+            "didaclinaresUPC": {
+                "additions": 0,
+                "deletions": 0,
+                "modified": 0
+            },
+            "total": {
+                "additions": 6216,
+                "deletions": 921,
+                "modified": 7137
+            }
+        },
+        "commit_streak": {
+            "DidacLinares": 5,
+            "didaclinaresUPC": 0
+        },
+        "longest_commit_streak_per_user": {
+            "DidacLinares": 5,
+            "didaclinaresUPC": 0
+        },
+        "issues": {
+            "assigned": {
+                "DidacLinares": 1,
+                "didaclinaresUPC": 1,
+                "non_assigned": 6
+            },
+            "closed": {
+                "DidacLinares": 1,
+                "didaclinaresUPC": 0
+            },
+            "have_pull_request": 1,
+            "assignee_is_pr_author": 1,
+            "total_closed": 4,
+            "total": 8
+        },
+        "pull_requests": {
+            "created": {
+                "DidacLinares": 17,
+                "didaclinaresUPC": 0
+            },
+            "merged_per_member": {
+                "DidacLinares": 14,
+                "didaclinaresUPC": 2
+            },
+            "merged": 16,
+            "not_merged_by_author": 2,
+            "closed": 0,
+            "total": 17
+        }
+    }
+}
