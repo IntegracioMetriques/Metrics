@@ -1,0 +1,66 @@
+{
+    "avatars": {
+        "DidacLinares": "https://avatars.githubusercontent.com/u/138216841?v=4",
+        "didaclinaresUPC": "https://avatars.githubusercontent.com/u/154509391?v=4"
+    },
+    "commits": {
+        "DidacLinares": 79,
+        "didaclinaresUPC": 0,
+        "anonymous": 0,
+        "total": 79
+    },
+    "modified_lines": {
+        "DidacLinares": {
+            "additions": 6500,
+            "deletions": 1063,
+            "modified": 7563
+        },
+        "didaclinaresUPC": {
+            "additions": 0,
+            "deletions": 0,
+            "modified": 0
+        },
+        "total": {
+            "additions": 6500,
+            "deletions": 1063,
+            "modified": 7563
+        }
+    },
+    "commit_streak": {
+        "DidacLinares": 7,
+        "didaclinaresUPC": 0
+    },
+    "longest_commit_streak_per_user": {
+        "DidacLinares": 7,
+        "didaclinaresUPC": 0
+    },
+    "issues": {
+        "assigned": {
+            "DidacLinares": 1,
+            "didaclinaresUPC": 1,
+            "non_assigned": 6
+        },
+        "closed": {
+            "DidacLinares": 1,
+            "didaclinaresUPC": 0
+        },
+        "have_pull_request": 1,
+        "assignee_is_pr_author": 1,
+        "total_closed": 4,
+        "total": 8
+    },
+    "pull_requests": {
+        "created": {
+            "DidacLinares": 18,
+            "didaclinaresUPC": 0
+        },
+        "merged_per_member": {
+            "DidacLinares": 15,
+            "didaclinaresUPC": 2
+        },
+        "merged": 17,
+        "not_merged_by_author": 2,
+        "closed": 0,
+        "total": 18
+    }
+}
