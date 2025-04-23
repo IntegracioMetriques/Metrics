@@ -55,7 +55,7 @@ def validar_config(config):
     if config["members"] not in valid_members:
         raise ConfigError(f"Error: El camp obligatori 'members' de config.json no té un valor vàlid. Valors vàlids: {valid_members}")
     
-def get_metrics(repo,instances,headers):
+def make_api_calls(repo,instances,headers):
     local_data = {}
     if not PARALLELISM:
         for instance in instances:
@@ -78,38 +78,7 @@ def combinar_resultats(result,data):
             data[key] = value  
     return data
 
-def daily_metrics():
-    metrics_path = "../metrics.json"
-    historic_metrics_path = "../historic_metrics.json"
-    if os.path.exists(metrics_path):
-        try:
-            with open(metrics_path, "r") as j:
-                metrics = json.load(j)
-        except (json.JSONDecodeError, ValueError):
-            return
-    else:
-        return
-    if os.path.exists(historic_metrics_path):
-        try:
-            with open(historic_metrics_path, "r") as j:
-                historic = json.load(j)
-        except (json.JSONDecodeError, ValueError):
-            historic = {}
-    else:
-        historic = {}
-    date = datetime.now(timezone.utc).date() - timedelta(days=1)
-    historic[date.strftime("%Y-%m-%d")] = metrics
-    with open(historic_metrics_path, "w") as j:
-        json.dump(historic,j,indent=4)
-
-def main():
-    daily_mode = False
-    if len(sys.argv) > 1:
-        if sys.argv[1] == "daily":
-            daily_mode = True
-    if daily_mode:
-        daily_metrics()
-        return
+def get_metrics():
     config_path = "../config.json"
     if os.path.exists(config_path):
         with open(config_path,'r') as f:
@@ -158,11 +127,11 @@ def main():
             instances.append(class_obj(PARALLELISM))
     if not PARALLELISM:
         for repo in repos:
-            result = get_metrics(repo,instances,HEADERS) 
+            result = make_api_calls(repo,instances,HEADERS) 
             combinar_resultats(result,data)    
     else:
         with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
-            futures = [executor.submit(get_metrics, repo, instances, HEADERS) for repo in repos]
+            futures = [executor.submit(make_api_calls, repo, instances, HEADERS) for repo in repos]
 
             for future in concurrent.futures.as_completed(futures):
                 combinar_resultats(future.result(),data)
@@ -176,6 +145,46 @@ def main():
        metrics = instance.execute(data,metrics,members)
     with open(metrics_path, "w") as f:
         json.dump(metrics, f, indent=4)
+
+def daily_metrics():
+    metrics_path = "../metrics.json"
+    historic_metrics_path = "../historic_metrics.json"
+    exists_metrics = True
+    if os.path.exists(metrics_path):
+        try:
+            with open(metrics_path, "r") as j:
+                metrics = json.load(j)
+        except (json.JSONDecodeError, ValueError):
+            exists_metrics = False
+    else:
+        exists_metrics = False
+    if not exists_metrics:
+        get_metrics()
+        with open(metrics_path, "r") as j:
+            metrics = json.load(j)
+    if os.path.exists(historic_metrics_path):
+        try:
+            with open(historic_metrics_path, "r") as j:
+                historic = json.load(j)
+        except (json.JSONDecodeError, ValueError):
+            historic = {}
+    else:
+        historic = {}
+    date = datetime.now(timezone.utc).date() - timedelta(days=1)
+    metrics.pop("avatars",None)
+    historic[date.strftime("%Y-%m-%d")] = metrics
+    with open(historic_metrics_path, "w") as j:
+        json.dump(historic,j,indent=4)
+
+def main():
+    daily_mode = False
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "daily":
+            daily_mode = True
+    if daily_mode:
+        daily_metrics()
+    else: 
+        get_metrics()
 
 if __name__ == "__main__":
     main()
