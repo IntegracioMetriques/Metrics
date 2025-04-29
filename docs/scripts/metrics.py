@@ -21,7 +21,7 @@ ORG_TOKEN = os.getenv("ORG_TOKEN")
 REPO = os.getenv("GITHUB_REPOSITORY")
 REPO_OWNER,REPO_NAME = os.getenv("GITHUB_REPOSITORY").split("/")
 parallelism_str = os.getenv("PARALLELISM")
-PARALLELISM = parallelism_str == "True"
+PARALLELISM = True
 HEADERS_REPO = {
     "Authorization": f"token {GITHUB_TOKEN}",
     "Content-Type": "application/json"
@@ -145,6 +145,8 @@ def get_metrics():
        metrics = instance.execute(data,metrics,members)
     with open(metrics_path, "w") as f:
         json.dump(metrics, f, indent=4)
+    with open("data.json", "w") as f:
+        json.dump(data, f, indent=4)
 
 def daily_metrics():
     metrics_path = "../metrics.json"
