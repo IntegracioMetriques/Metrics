@@ -1,38 +1,38 @@
 from .APInterface import APInterface
 import requests
 class GetIssues(APInterface):
-    def execute(self, owner_name, repo_name, headers, data: dict) -> dict:
+    def execute(self, owner_name, repo_name, headers, project_number, data: dict) -> dict:
         url = "https://api.github.com/graphql"
         cursor = None
         issues = {}
         while True:
             query = """
             {
-            repository(owner: "%s", name: "%s") {
-                issues(first: 100%s) {
-                nodes {
-                    id
-                    state
-                    assignees(first: 1) {
+                repository(owner: "%s", name: "%s") {
+                    issues(first: 100%s) {
                         nodes {
-                            login
-                        }
-                    }
-                    closedByPullRequestsReferences(first: 1) {
-                            totalCount
-                            nodes {
-                                author {
+                            id
+                            state
+                            assignees(first: 1) {
+                                nodes {
                                     login
                                 }
+                            }
+                            closedByPullRequestsReferences(first: 1) {
+                                    totalCount
+                                    nodes {
+                                        author {
+                                            login
+                                        }
+                                }
+                            }
+                        }
+                        pageInfo {
+                            hasNextPage
+                            endCursor
                         }
                     }
                 }
-                pageInfo {
-                    hasNextPage
-                    endCursor
-                }
-                }
-            }
             }
             """ % (owner_name, repo_name,f', after: "{cursor}"' if cursor else "")
 

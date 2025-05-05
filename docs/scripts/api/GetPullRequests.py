@@ -2,7 +2,7 @@ from .APInterface import APInterface
 import requests
 
 class GetPullRequests(APInterface):
-    def execute(self, owner_name, repo_name, headers, data: dict) -> dict:
+    def execute(self, owner_name, repo_name, headers, project_number, data: dict) -> dict:
         url = "https://api.github.com/graphql"
         cursor = None
         pull_requests = {}
