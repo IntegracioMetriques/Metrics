@@ -12,7 +12,7 @@ class TestCollectCommitsMetrics(unittest.TestCase):
         self.members = ['member1', 'member2'] 
         self.collector = CollectCommitsMetrics()
         
-    def test_general(self):
+    def test_general_commits(self):
         data = {
             "commits": {
                 "1": {"author": "member1", "additions": 100, "deletions": 20, "modified": 120, "date": "2025-04-23", "merge": False},

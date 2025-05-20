@@ -9,7 +9,7 @@ class TestCollectPullRequests(unittest.TestCase):
         self.members = ['member1', 'member2'] 
         self.collector = CollectPullRequests()
 
-    def test_general(self):
+    def test_general_pull_requests(self):
 
         data = {
             "pull_requests": {

@@ -9,7 +9,7 @@ class TestCollectProject(unittest.TestCase):
         self.members = ['member1', 'member2'] 
         self.collector = CollectProject()
 
-    def test_general(self):
+    def test_general_projects(self):
 
         data = {
             "project": {

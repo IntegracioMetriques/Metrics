@@ -9,7 +9,7 @@ class TestCollectAvatar(unittest.TestCase):
         self.members = ['member1', 'member2'] 
         self.collector = CollectAvatar()
 
-    def test_general(self):
+    def test_general_avatar(self):
 
         data = {
             "members_images": {
