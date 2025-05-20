@@ -19,5 +19,5 @@ jobs:
         run: |
           cd docs
           cd scripts
-          python -B -m unittest discover -s tests -p "Test*.py"
+          python -B -m unittest discover -s tests -p "Test*.py" -v
 
