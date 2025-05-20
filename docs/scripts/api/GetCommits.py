@@ -24,7 +24,9 @@ class GetCommits(APInterface):
                             node {
                                 oid  
                                 author {
-                                name 
+                                    user {
+                                        login
+                                    } 
                                 }
                                 additions  
                                 deletions
@@ -58,7 +60,7 @@ class GetCommits(APInterface):
                 for commit_data in commits_data_graphql:
                     commit = commit_data['node']
                     sha = commit['oid']
-                    autor = commit['author']['name']
+                    autor = commit['author']['user']['login']
                     additions = commit['additions']
                     deletions = commit['deletions']
                     date =  datetime.strptime(commit['committedDate'], "%Y-%m-%dT%H:%M:%SZ").strftime("%Y-%m-%d")
@@ -80,7 +82,7 @@ class GetCommits(APInterface):
                 break
         return data
     
-    def execute(self, owner_name, repo_name, headers, data: dict) -> dict:
+    def execute(self, owner_name, repo_name, headers, project_number, data: dict) -> dict:
         branches = self.get_branches(headers,repo_name,owner_name)
         commits = {}
         if self.par:

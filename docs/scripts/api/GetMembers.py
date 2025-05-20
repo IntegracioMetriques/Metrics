@@ -2,7 +2,7 @@ from .APInterface import APInterface
 import requests
 
 class GetMembers(APInterface):
-    def execute(self, owner_name, repo_name, headers, data: dict) -> dict:
+    def execute(self, owner_name, repo_name, headers, project_number, data: dict) -> dict:
         url = f" https://api.github.com/orgs/{owner_name}/members"
         response = requests.get(url, headers=headers)
 
