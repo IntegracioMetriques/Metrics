@@ -24,6 +24,7 @@ class CollectProject(CollectorBase):
                     in_progress_assigned_draftIssues_per_member[draftIssue['assignee']] +=1
             else:
                 non_assigned += 1
+        assigned_draftIssue_per_member['non_assigned'] = non_assigned
         metrics['project']= {
             'assigned_per_member': assigned_draftIssue_per_member,
             'in_progress_per_member': in_progress_assigned_draftIssues_per_member,
