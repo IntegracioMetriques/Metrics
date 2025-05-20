@@ -24,7 +24,9 @@ class GetCommits(APInterface):
                             node {
                                 oid  
                                 author {
-                                name 
+                                    user {
+                                        login
+                                    } 
                                 }
                                 additions  
                                 deletions
@@ -50,6 +52,7 @@ class GetCommits(APInterface):
             if response.status_code != 200:
                 raise  requests.RequestException(f"Error al fer la trucada a {self.__class__.__name__}: {response.status_code}")
             data_graphql = response.json()
+
             if 'data' in data_graphql:
                 commits_data_graphql = data_graphql['data']['repository']['ref']['target']['history']['edges']
                 page_info = data_graphql['data']['repository']['ref']['target']['history']['pageInfo']
@@ -57,30 +60,29 @@ class GetCommits(APInterface):
                 for commit_data in commits_data_graphql:
                     commit = commit_data['node']
                     sha = commit['oid']
-                    autor = commit['author']['name']
+                    autor = commit['author']['user']['login']
                     additions = commit['additions']
                     deletions = commit['deletions']
                     date =  datetime.strptime(commit['committedDate'], "%Y-%m-%dT%H:%M:%SZ").strftime("%Y-%m-%d")
                     modified_lines = additions + deletions
-                    if sha not in data and commit['parents']['totalCount'] <= 1:
+                    if sha not in data:
                         data[sha] = {
                             "author": autor,
                             "additions": additions,
                             "deletions": deletions,
                             "modified": modified_lines,
-                            "date": date
+                            "date": date,
+                            "merge": True if commit['parents']['totalCount'] > 1 else False
                         }
-
                 if page_info['hasNextPage']:
                     cursor = page_info['endCursor']
                 else:
                     break
             else:
                 break
-        
         return data
     
-    def execute(self, owner_name, repo_name, headers, data: dict) -> dict:
+    def execute(self, owner_name, repo_name, headers, project_number, data: dict) -> dict:
         branches = self.get_branches(headers,repo_name,owner_name)
         commits = {}
         if self.par:

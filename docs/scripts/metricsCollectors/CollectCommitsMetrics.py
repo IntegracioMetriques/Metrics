@@ -20,8 +20,11 @@ class CollectCommitsMetrics(CollectorBase):
         total_additions = 0
         total_deletions = 0
         total_modified = 0
+        commit_merges = 0
         for _,commit in commits.items():
-            if commit['author'] in commits_per_member:
+            if commit['merge']:
+                commit_merges +=1
+            elif commit['author'] in commits_per_member:
                 commit_dates[commit['author']].append(datetime.strptime(commit['date']  , "%Y-%m-%d").date())
                 commits_per_member[commit['author']] +=1
                 modified_lines_per_member[commit['author']]['additions'] += commit['additions']
@@ -63,7 +66,8 @@ class CollectCommitsMetrics(CollectorBase):
                 }
         metrics["commits"] = commits_per_member
         metrics["modified_lines"] = modified_lines_per_member
-        metrics["commit_streak"] = streaks_per_member    
+        metrics["commit_streak"] = streaks_per_member  
+        metrics["commit_merges"] = commit_merges  
         for member, streak in streaks_per_member.items():
             if member not in metrics.get('longest_commit_streak_per_user', {}):
                 metrics.setdefault('longest_commit_streak_per_user', {})[member] = streak

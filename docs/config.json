@@ -1,6 +1,10 @@
 {
     "metrics_scope": "org",
-    "members":"org", 
+    "members":"org",
+    "project_number": 1,
+    "features":[
+        "issues","pull-requests"
+    ],
     "excluded_members": [
     ],
     "excluded_repos": [

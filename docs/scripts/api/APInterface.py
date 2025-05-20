@@ -5,5 +5,5 @@ class APInterface(ABC):
         self.par = par
 
     @abstractmethod
-    def execute(self, owner_name, repo_name, headers, data: dict) -> dict:
+    def execute(self, owner_name, repo_name, headers, project_number, data: dict) -> dict:
         pass
