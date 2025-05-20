@@ -35,7 +35,7 @@ class TestCollectIssues(unittest.TestCase):
         
         self.assertEqual(result, expected_result)
 
-    def test_non_assigned_general(self):
+    def test_non_assigned(self):
 
         data = {
             'issues': {
@@ -62,6 +62,31 @@ class TestCollectIssues(unittest.TestCase):
 
     def test_has_pull_request(self):
 
+        data = {
+            'issues': {
+                "1": {'state': 'OPEN', 'assignee': 'member1', 'has_pull_request': True, 'pr_author_is_assignee': True},
+                "2": {'state': 'CLOSED', 'assignee': 'member1', 'has_pull_request': True, 'pr_author_is_assignee': True},
+                "3": {'state': 'CLOSED', 'assignee': 'member1', 'has_pull_request': False, 'pr_author_is_assignee': False},
+                "4": {'state': 'CLOSED', 'assignee': 'member1', 'has_pull_request': True, 'pr_author_is_assignee': False},
+            }
+        }
+
+        result = self.collector.execute(data, self.metrics, self.members)
+        
+        expected_result = {
+            'issues': {
+                'assigned': {'member1': 4, 'member2': 0, 'non_assigned': 0},
+                'closed': {'member1': 3, 'member2': 0},
+                'have_pull_request': 2,
+                'assignee_is_pr_author': 1,
+                'total_closed': 3,
+                'total': 4
+            }
+        }
+        
+        self.assertEqual(result, expected_result)
+
+    def test_pr_author_is_assignee(self):
         data = {
             'issues': {
                 "1": {'state': 'OPEN', 'assignee': 'member1', 'has_pull_request': True, 'pr_author_is_assignee': True},

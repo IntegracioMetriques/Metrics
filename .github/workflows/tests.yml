@@ -1,0 +1,23 @@
+name: Tests
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  
+jobs:
+  get_metrics:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4 
+
+      - name: Tests
+        id: tests
+        run: |
+          cd docs
+          cd scripts
+          python -B -m unittest discover -s tests -p "Test*.py"
+

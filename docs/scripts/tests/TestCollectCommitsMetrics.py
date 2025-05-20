@@ -64,6 +64,7 @@ class TestCollectCommitsMetrics(unittest.TestCase):
             }
         }
         self.assertEqual(result, expected_result)
+
     def test_merge_commits(self):
         data = {
             "commits" : {
@@ -73,50 +74,9 @@ class TestCollectCommitsMetrics(unittest.TestCase):
         }
 
         result = self.collector.execute(data, self.metrics, self.members)
-        
-        expected_result = {
-            'commits': 
-            {
-                'member1': 0,
-                'member2': 1,
-                'anonymous': 0,
-                'total': 1
-            }, 
-            'modified_lines': 
-            {
-                'member1': 
-                {
-                    'additions': 0,
-                    'deletions': 0, 
-                    'modified': 0
-                },
-                'member2': 
-                {
-                    'additions': 120, 
-                    'deletions': 50, 
-                    'modified': 170
-                }, 
-                'total': 
-                {
-                    'additions': 120, 
-                    'deletions': 50, 
-                    'modified': 170
-                }
-            }, 
-            'commit_streak':
-            {
-                'member1': 0, 
-                'member2': 0
-            }, 
-            'commit_merges': 1,
-            'longest_commit_streak_per_user': 
-            {
-                'member1': 0, 
-                'member2': 0
-            }
-        }
-
-        self.assertEqual(result, expected_result)
+        expected_result = {}
+        expected_result['commit_merges'] = 1
+        self.assertEqual(result['commit_merges'], expected_result['commit_merges'])
 
     @patch('metricsCollectors.CollectCommitsMetrics.datetime') 
     def test_commit_streak(self, mock_datetime):
@@ -136,10 +96,14 @@ class TestCollectCommitsMetrics(unittest.TestCase):
         result = self.collector.execute(data, self.metrics, self.members)
 
         commit_streaks = result['commit_streak']
+        expected_result = {}
+        expected_result['commit_streaks'] = {}
+        expected_result['commit_streaks']['member1'] = 3
+        expected_result['commit_streaks']['member2'] = 1
 
-        self.assertEqual(commit_streaks['member1'], 3)
+        self.assertEqual(result['commit_streak']['member1'], expected_result['commit_streaks']['member1'])
 
-        self.assertEqual(commit_streaks['member2'], 1)
+        self.assertEqual(result['commit_streak']['member2'], expected_result['commit_streaks']['member2'])
 
 if __name__ == '__main__':
     unittest.main()

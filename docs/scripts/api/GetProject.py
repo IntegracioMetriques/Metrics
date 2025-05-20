@@ -85,7 +85,8 @@ class GetProjects(APInterface):
                         if 'assignees' in content:
                             assignees = content['assignees']['nodes']
                             assignee = assignees[0]['login'] if assignees else None
-
+                        if  '__typename' in content:
+                            item_type = content['__typename']
                         for field_value in item['fieldValues']['nodes']:
                             if 'field' in field_value and field_value['field']['name'] == "Status":
                                 status = field_value['name']
