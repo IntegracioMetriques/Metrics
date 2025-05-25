@@ -58,5 +58,50 @@ class TestCollectProject(unittest.TestCase):
         
         self.assertEqual(result, expected_result)
 
+    def test_sense_iteracions_projects(self):
+
+        data = {
+            "project": {
+            "1": {"title": "t1","assignee": None,"status": "Todo","item_type": "Issue","iteration":None,"issue_type": "Task"},
+            "2": {"title": "t2","assignee": "member1","status": "In Progress","item_type": "Issue","iteration":None,"issue_type": "Task"},
+            "3": {"title": "t3","assignee": "member1","status": "Todo","item_type": "DraftIssue","iteration":None},
+            "4": {"title": "t4","assignee": "member2","status": "Done","item_type": "Issue","iteration":None,"issue_type": None},
+            },
+            "iterations": [
+            ]
+        }
+        self.maxDiff = None
+        result = self.collector.execute(data, self.metrics, self.members)
+        expected_result = {
+            "project": {
+                "assigned_per_member": {
+                    "member1": 1,
+                    "member2": 0,
+                    "non_assigned": 1
+                },
+                "in_progress_per_member": {
+                    "member1": 1,
+                    "member2": 0
+                },
+                "done_per_member": {
+                    "member1": 0,
+                    "member2": 0
+                },
+                "has_iterations" : False,
+                "iterations": {
+                },
+                "in_progress": 1,
+                "done": 1,
+                "total_issues": 3,
+                "total_issues_with_type": 2,
+                "total_features": 0,
+                "total_tasks": 2,
+                "total_bugs": 0,
+                "total": 4
+            },
+        }
+        
+        self.assertEqual(result, expected_result)
+
 if __name__ == '__main__':
     unittest.main()
