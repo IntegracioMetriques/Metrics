@@ -20,12 +20,11 @@ class TestCollectProject(unittest.TestCase):
             },
             "iterations": [
             {"id": "1","title": "Iteration 1","startDate": "2025-02-1","duration": 14},
-            {"id": "2","title": "Iteration 2","startDate": "2025-02-15","duration": 14},
+            {"id": "2","title": "Iteration 2","startDate": "2025-02-16","duration": 14},
             ]
         }
 
         result = self.collector.execute(data, self.metrics, self.members)
-        
         expected_result = {
             "project": {
                 "assigned_per_member": {
@@ -40,6 +39,11 @@ class TestCollectProject(unittest.TestCase):
                 "done_per_member": {
                     "member1": 0,
                     "member2": 1
+                },
+                "has_iterations" : True,
+                "iterations": {
+                    "1" : {"title": "Iteration 1","startDate": "2025-02-1","endDate":"2025-02-15","duration": 14},
+                    "2" : {"title": "Iteration 2","startDate": "2025-02-16","endDate":"2025-03-02","duration": 14},
                 },
                 "in_progress": 1,
                 "done": 1,

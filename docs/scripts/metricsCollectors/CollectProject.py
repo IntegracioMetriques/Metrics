@@ -1,9 +1,11 @@
 from .CollectorBase import CollectorBase
+from datetime import datetime, timedelta
 
 class CollectProject(CollectorBase):
     def execute(self, data: dict, metrics: dict, members) -> dict:
         draftIssues = data['project']
-        iterations = data['iterations']
+        iterations_data = data['iterations']
+        iterations = {}
         assigned_draftIssue_per_member = {member: 0 for member in members}
         done_assigned_draftIssues_per_member = {member: 0 for member in members}
         in_progress_assigned_draftIssues_per_member = {member: 0 for member in members}
@@ -25,11 +27,27 @@ class CollectProject(CollectorBase):
                     in_progress_assigned_draftIssues_per_member[draftIssue['assignee']] +=1
             else:
                 non_assigned += 1
+        has_iterations = False
+        for iteration in iterations_data:
+            has_iterations = True
+            start_date_str = iteration['startDate']
+            duration_days = iteration['duration'] 
+            start_date = datetime.strptime(start_date_str, "%Y-%m-%d")
+            end_date = start_date + timedelta(days=duration_days)
+            end_date_str = end_date.strftime("%Y-%m-%d")
+            iterations[iteration['id']] = {
+                "title" : iteration['title'],
+                "startDate" : start_date_str,
+                "endDate" : end_date_str,
+                "duration" :duration_days
+            }
         assigned_draftIssue_per_member['non_assigned'] = non_assigned
         metrics['project']= {
             'assigned_per_member': assigned_draftIssue_per_member,
             'in_progress_per_member': in_progress_assigned_draftIssues_per_member,
             'done_per_member': done_assigned_draftIssues_per_member,
+            'has_iterations': has_iterations,
+            'iterations' : iterations,
             'in_progress': total_in_progress,
             'done': total_done,
             'total': total
