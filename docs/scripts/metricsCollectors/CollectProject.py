@@ -13,20 +13,36 @@ class CollectProject(CollectorBase):
         total = 0
         total_done = 0
         total_in_progress = 0
+        total_issues = 0
+        total_issues_with_type = 0
+        total_features = 0
+        total_tasks = 0
+        total_bugs = 0
         for _,draftIssue in draftIssues.items():
             total +=1
             if draftIssue['status'] == 'Done':
                 total_done += 1
             elif draftIssue['status'] == 'In Progress':
                 total_in_progress += 1
-            if draftIssue['assignee'] != None and draftIssue['assignee'] in members:
-                assigned_draftIssue_per_member[draftIssue['assignee']] +=1
-                if draftIssue['status'] == 'Done':
-                    done_assigned_draftIssues_per_member[draftIssue['assignee']] += 1
-                elif draftIssue['status'] == 'In Progress':
-                    in_progress_assigned_draftIssues_per_member[draftIssue['assignee']] +=1
-            else:
-                non_assigned += 1
+            if draftIssue['item_type'] == 'Issue':
+                total_issues +=1
+                if draftIssue['issue_type'] != None:
+                    total_issues_with_type +=1
+                    if draftIssue['issue_type'] == "Feature":
+                        total_features += 1
+                    elif draftIssue['issue_type'] == "Bug":
+                        total_bugs +=1
+                    elif draftIssue['issue_type'] == "Task":
+                        total_tasks += 1
+                        if draftIssue['assignee'] != None and draftIssue['assignee'] in members:
+                            assigned_draftIssue_per_member[draftIssue['assignee']] +=1
+                            if draftIssue['status'] == 'Done':
+                                done_assigned_draftIssues_per_member[draftIssue['assignee']] += 1
+                            elif draftIssue['status'] == 'In Progress':
+                                in_progress_assigned_draftIssues_per_member[draftIssue['assignee']] +=1
+                        else:
+                            non_assigned += 1
+
         has_iterations = False
         for iteration in iterations_data:
             has_iterations = True
@@ -50,6 +66,11 @@ class CollectProject(CollectorBase):
             'iterations' : iterations,
             'in_progress': total_in_progress,
             'done': total_done,
+            "total_issues": total_issues,
+            "total_issues_with_type": total_issues_with_type,
+            "total_features":total_features,
+            "total_tasks": total_tasks,
+            "total_bugs" : total_bugs,
             'total': total
         }
         return metrics

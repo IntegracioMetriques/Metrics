@@ -39,6 +39,9 @@ class GetProject(APInterface):
                                     ... on Issue {
                                         title
                                         id
+                                        issueType  {
+                                            name
+                                        }
                                         assignees(first: 1) {
                                             nodes {
                                                 login
@@ -111,6 +114,7 @@ class GetProject(APInterface):
                     assignees = None
                     status = None
                     item_type = None
+                    issue_type = None
 
                     if 'content' in item:
                         content = item['content']
@@ -123,20 +127,22 @@ class GetProject(APInterface):
                             assignee = assignees[0]['login'] if assignees else None
                         if  '__typename' in content:
                             item_type = content['__typename']
+                        if item_type == "Issue" and 'issueType' in content and content['issueType']:
+                                issue_type = content['issueType']['name']
                         iteration_title = None
                         for field_value in item['fieldValues']['nodes']:
                             if 'field' in field_value and field_value['field']['name'] == "Status":
                                 status = field_value['name']
                             elif all(k in field_value for k in ['id', 'title', 'startDate', 'duration']):
                                 iteration_title = field_value['title']
-                                if not any(it['id'] ==  field_value['id'] for it in iterations_list):
+                                if not any(it['title'] == iteration_title for it in iterations_list):
                                     iterations_list.append({
                                         'id': field_value['id'],
-                                        'title': field_value['title'],
+                                        'title': iteration_title,
                                         'startDate': field_value['startDate'],
                                         'duration': field_value['duration']
                                     })
-                    if id: 
+                    if id and item_type != "Issue": 
                         project[id] = {
                             "title": title,
                             "assignee": assignee,
@@ -144,6 +150,16 @@ class GetProject(APInterface):
                             "item_type": item_type,
                             "iteration":iteration_title,
                         }
+                    elif id and item_type == "Issue":
+                        project[id] = {
+                            "title": title,
+                            "assignee": assignee,
+                            "status": status,
+                            "item_type": item_type,
+                            "iteration":iteration_title,
+                            "issue_type" : issue_type
+                        }
+                    
                 if page_info['hasNextPage']:
                     cursor = page_info['endCursor']
                 else:
