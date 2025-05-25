@@ -1,7 +1,7 @@
 from .APInterface import APInterface
 import requests
 
-class GetProjects(APInterface):
+class GetProject(APInterface):
     def execute(self, owner_name, repo_name, headers, project_number, data: dict) -> dict:
         if project_number <= 0: 
             data['project'] = {}
@@ -15,6 +15,23 @@ class GetProjects(APInterface):
                 organization(login: "%s") {
                     projectV2(number: %d) {
                         title
+                        fields(first: 100) {
+                            nodes {
+                                ... on ProjectV2IterationField {
+                                    id
+                                    name
+                                    configuration {
+                                        iterations {
+                                                id
+                                                title
+                                                startDate                                                
+                                                duration
+                                            
+                                        }
+                                    }
+                                }
+                            }
+                        }
                         items(first: 100%s) {
                             nodes {
                                 content {
@@ -48,6 +65,12 @@ class GetProjects(APInterface):
                                             }
                                             name
                                         }
+                                          ... on ProjectV2ItemFieldIterationValue {
+                                                id
+                                                title
+                                                startDate
+                                                duration
+                                        }
                                     }
                                 }
                             }
@@ -67,11 +90,21 @@ class GetProjects(APInterface):
                 raise requests.RequestException(f"Error al fer la trucada a {self.__class__.__name__}: {response.status_code}")
             
             data_graphql = response.json()
+            iterations_list = []
 
             if 'data' in data_graphql:
+                iteration_Data = data_graphql['data']['organization']['projectV2']['fields']['nodes']
                 items_data = data_graphql['data']['organization']['projectV2']['items']['nodes']
                 page_info = data_graphql['data']['organization']['projectV2']['items']['pageInfo']
-
+                for field in iteration_Data:
+                    if field.get('name') == 'Iteration' and 'configuration' in field:
+                        for iteration in field.get('configuration', {}).get('iterations', []):
+                            iterations_list.append({
+                                'id': iteration.get('id'),
+                                'title': iteration.get('title'),
+                                'startDate': iteration.get('startDate'),
+                                'duration': iteration.get('duration'),
+                            })
                 for item in items_data:
                     id = None
                     title = None
@@ -90,15 +123,26 @@ class GetProjects(APInterface):
                             assignee = assignees[0]['login'] if assignees else None
                         if  '__typename' in content:
                             item_type = content['__typename']
+                        iteration_title = None
                         for field_value in item['fieldValues']['nodes']:
                             if 'field' in field_value and field_value['field']['name'] == "Status":
                                 status = field_value['name']
+                            elif all(k in field_value for k in ['id', 'title', 'startDate', 'duration']):
+                                iteration_title = field_value['title']
+                                if not any(it['id'] ==  field_value['id'] for it in iterations_list):
+                                    iterations_list.append({
+                                        'id': field_value['id'],
+                                        'title': field_value['title'],
+                                        'startDate': field_value['startDate'],
+                                        'duration': field_value['duration']
+                                    })
                     if id: 
                         project[id] = {
                             "title": title,
                             "assignee": assignee,
                             "status": status,
-                            "item_type": item_type
+                            "item_type": item_type,
+                            "iteration":iteration_title,
                         }
                 if page_info['hasNextPage']:
                     cursor = page_info['endCursor']
@@ -106,9 +150,14 @@ class GetProjects(APInterface):
                     break
             else:
                 break
-
         if "project" in data:
             data["project"].update(project)
         else:
             data["project"] = project
+
+        if "iterations" in data:
+            data["iterations"].update(iterations_list)
+        else:
+             data["iterations"] = iterations_list
+
         return data

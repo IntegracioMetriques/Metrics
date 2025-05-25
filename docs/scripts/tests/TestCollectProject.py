@@ -13,11 +13,15 @@ class TestCollectProject(unittest.TestCase):
 
         data = {
             "project": {
-            "1": {"title": "t1","assignee": None,"status": "Todo","item_type": "Issue"},
-            "2": {"title": "t2","assignee": "member1","status": "In Progress","item_type": "DraftIssue"},
-            "3": {"title": "t3","assignee": "member1","status": "Todo","item_type": "DraftIssue"},
-            "4": {"title": "t4","assignee": "member2","status": "Done","item_type": "Issue"},
-            }
+            "1": {"title": "t1","assignee": None,"status": "Todo","item_type": "Issue","iteration":"Iteration 1"},
+            "2": {"title": "t2","assignee": "member1","status": "In Progress","item_type": "DraftIssue","iteration":"Iteration 2"},
+            "3": {"title": "t3","assignee": "member1","status": "Todo","item_type": "DraftIssue","iteration":None},
+            "4": {"title": "t4","assignee": "member2","status": "Done","item_type": "Issue","iteration":None},
+            },
+            "iterations": [
+            {"id": "1","title": "Iteration 1","startDate": "2025-02-1","duration": 14},
+            {"id": "2","title": "Iteration 2","startDate": "2025-02-15","duration": 14},
+            ]
         }
 
         result = self.collector.execute(data, self.metrics, self.members)

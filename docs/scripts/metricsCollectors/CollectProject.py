@@ -3,6 +3,7 @@ from .CollectorBase import CollectorBase
 class CollectProject(CollectorBase):
     def execute(self, data: dict, metrics: dict, members) -> dict:
         draftIssues = data['project']
+        iterations = data['iterations']
         assigned_draftIssue_per_member = {member: 0 for member in members}
         done_assigned_draftIssues_per_member = {member: 0 for member in members}
         in_progress_assigned_draftIssues_per_member = {member: 0 for member in members}
