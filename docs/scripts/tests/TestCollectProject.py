@@ -25,35 +25,109 @@ class TestCollectProject(unittest.TestCase):
         }
         self.maxDiff = None
         result = self.collector.execute(data, self.metrics, self.members)
+        print(result)
         expected_result = {
             "project": {
-                "assigned_per_member": {
-                    "member1": 1,
-                    "member2": 0,
-                    "non_assigned": 1
-                },
-                "in_progress_per_member": {
-                    "member1": 1,
-                    "member2": 0
-                },
-                "done_per_member": {
-                    "member1": 0,
-                    "member2": 0
-                },
                 "has_iterations" : True,
                 "iterations": {
-                    "1" : {"title": "Iteration 1","startDate": "2025-02-1","endDate":"2025-02-15","duration": 14},
-                    "2" : {"title": "Iteration 2","startDate": "2025-02-16","endDate":"2025-03-02","duration": 14},
+                    "Iteration 1" : {"title": "Iteration 1","startDate": "2025-02-1","endDate":"2025-02-15","duration": 14},
+                    "Iteration 2" : {"title": "Iteration 2","startDate": "2025-02-16","endDate":"2025-03-02","duration": 14},
                 },
-                "in_progress": 1,
-                "done": 1,
-                "total_issues": 3,
-                "total_issues_with_type": 2,
-                "total_features": 0,
-                "total_tasks": 2,
-                "total_bugs": 0,
-                "total": 4
-            },
+                "metrics_by_iteration": {
+                    "Iteration 1": {
+                        "assigned_per_member": {
+                            "member1": 0,
+                            "member2": 0,
+                            "non_assigned": 1
+                        },
+                        "in_progress_per_member": {
+                            "member1": 0,
+                            "member2": 0
+                        },
+                        "done_per_member": {
+                            "member1": 0,
+                            "member2": 0
+                        },
+                        "in_progress": 0,
+                        "done": 0,
+                        "total_issues": 1,
+                        "total_issues_with_type": 1,
+                        "total_features": 0,
+                        "total_tasks": 1,
+                        "total_bugs": 0,
+                        "total": 1
+                    },
+                    "Iteration 2": {
+                        "assigned_per_member": {
+                            "member1": 1,
+                            "member2": 0,
+                            "non_assigned": 0
+                        },
+                        "in_progress_per_member": {
+                            "member1": 1,
+                            "member2": 0
+                        },
+                        "done_per_member": {
+                            "member1": 0,
+                            "member2": 0
+                        },
+                        "in_progress": 1,
+                        "done": 0,
+                        "total_issues": 1,
+                        "total_issues_with_type": 1,
+                        "total_features": 0,
+                        "total_tasks": 1,
+                        "total_bugs": 0,
+                        "total": 1
+                    },
+                    "no_iteration": {
+                        "assigned_per_member": {
+                            "member1": 0,
+                            "member2": 0,
+                            "non_assigned": 0
+                        },
+                        "in_progress_per_member": {
+                            "member1": 0,
+                            "member2": 0
+                        },
+                        "done_per_member": {
+                            "member1": 0,
+                            "member2": 0
+                        },
+                        "in_progress": 0,
+                        "done": 1,
+                        "total_issues": 1,
+                        "total_issues_with_type": 0,
+                        "total_features": 0,
+                        "total_tasks": 0,
+                        "total_bugs": 0,
+                        "total": 2
+                    },
+                    "total": {
+                        "assigned_per_member": {
+                            "member1": 1,
+                            "member2": 0,
+                            "non_assigned": 1
+                        },
+                        "in_progress_per_member": {
+                            "member1": 1,
+                            "member2": 0
+                        },
+                        "done_per_member": {
+                            "member1": 0,
+                            "member2": 0
+                        },
+                        "in_progress": 1,
+                        "done": 1,
+                        "total_issues": 3,
+                        "total_issues_with_type": 2,
+                        "total_features": 0,
+                        "total_tasks": 2,
+                        "total_bugs": 0,
+                        "total": 4
+                    },
+                },
+            }   
         }
         
         self.assertEqual(result, expected_result)
@@ -74,30 +148,57 @@ class TestCollectProject(unittest.TestCase):
         result = self.collector.execute(data, self.metrics, self.members)
         expected_result = {
             "project": {
-                "assigned_per_member": {
-                    "member1": 1,
-                    "member2": 0,
-                    "non_assigned": 1
-                },
-                "in_progress_per_member": {
-                    "member1": 1,
-                    "member2": 0
-                },
-                "done_per_member": {
-                    "member1": 0,
-                    "member2": 0
-                },
                 "has_iterations" : False,
                 "iterations": {
                 },
-                "in_progress": 1,
-                "done": 1,
-                "total_issues": 3,
-                "total_issues_with_type": 2,
-                "total_features": 0,
-                "total_tasks": 2,
-                "total_bugs": 0,
-                "total": 4
+                "metrics_by_iteration": {
+                    "no_iteration": {
+                        "assigned_per_member": {
+                            "member1": 1,
+                            "member2": 0,
+                            "non_assigned": 1
+                        },
+                        "in_progress_per_member": {
+                            "member1": 1,
+                            "member2": 0
+                        },
+                        "done_per_member": {
+                            "member1": 0,
+                            "member2": 0
+                        },
+                        "in_progress": 1,
+                        "done": 1,
+                        "total_issues": 3,
+                        "total_issues_with_type": 2,
+                        "total_features": 0,
+                        "total_tasks": 2,
+                        "total_bugs": 0,
+                        "total": 4
+                    },
+                    "total": {
+                        "assigned_per_member": {
+                            "member1": 1,
+                            "member2": 0,
+                            "non_assigned": 1
+                        },
+                        "in_progress_per_member": {
+                            "member1": 1,
+                            "member2": 0
+                        },
+                        "done_per_member": {
+                            "member1": 0,
+                            "member2": 0
+                        },
+                        "in_progress": 1,
+                        "done": 1,
+                        "total_issues": 3,
+                        "total_issues_with_type": 2,
+                        "total_features": 0,
+                        "total_tasks": 2,
+                        "total_bugs": 0,
+                        "total": 4
+                    }
+                }
             },
         }
         
