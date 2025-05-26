@@ -12,7 +12,7 @@ class CollectProject(CollectorBase):
             start_date_str = iteration['startDate']
             duration_days = iteration['duration'] 
             start_date = datetime.strptime(start_date_str, "%Y-%m-%d")
-            end_date = start_date + timedelta(days=duration_days)
+            end_date = start_date + timedelta(days=duration_days - 1)
             end_date_str = end_date.strftime("%Y-%m-%d")
             iterations[iteration['title']] = {
                 "title" : iteration['title'],

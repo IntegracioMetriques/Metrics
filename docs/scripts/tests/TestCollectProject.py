@@ -20,7 +20,7 @@ class TestCollectProject(unittest.TestCase):
             },
             "iterations": [
             {"id": "1","title": "Iteration 1","startDate": "2025-02-1","duration": 14},
-            {"id": "2","title": "Iteration 2","startDate": "2025-02-16","duration": 14},
+            {"id": "2","title": "Iteration 2","startDate": "2025-02-15","duration": 14},
             ]
         }
         self.maxDiff = None
@@ -30,8 +30,8 @@ class TestCollectProject(unittest.TestCase):
             "project": {
                 "has_iterations" : True,
                 "iterations": {
-                    "Iteration 1" : {"title": "Iteration 1","startDate": "2025-02-1","endDate":"2025-02-15","duration": 14},
-                    "Iteration 2" : {"title": "Iteration 2","startDate": "2025-02-16","endDate":"2025-03-02","duration": 14},
+                    "Iteration 1" : {"title": "Iteration 1","startDate": "2025-02-1","endDate":"2025-02-14","duration": 14},
+                    "Iteration 2" : {"title": "Iteration 2","startDate": "2025-02-15","endDate":"2025-02-28","duration": 14},
                 },
                 "metrics_by_iteration": {
                     "Iteration 1": {
