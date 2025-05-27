@@ -30,6 +30,12 @@ class GetProject(APInterface):
                                         }
                                     }
                                 }
+                                ... on ProjectV2SingleSelectField {
+                                    name
+                                    options {
+                                        name
+                                    }
+                                }
                             }
                         }
                         items(first: 100%s) {
@@ -94,7 +100,7 @@ class GetProject(APInterface):
             
             data_graphql = response.json()
             iterations_list = []
-
+            statuses_list = []
             if 'data' in data_graphql:
                 iteration_Data = data_graphql['data']['organization']['projectV2']['fields']['nodes']
                 items_data = data_graphql['data']['organization']['projectV2']['items']['nodes']
@@ -108,6 +114,10 @@ class GetProject(APInterface):
                                 'startDate': iteration.get('startDate'),
                                 'duration': iteration.get('duration'),
                             })
+                    elif field.get('name') == 'Status':
+                        status_options = field.get('options', [])
+                        statuses_list = [opt['name'] for opt in status_options]
+
                 for item in items_data:
                     id = None
                     title = None
@@ -175,5 +185,8 @@ class GetProject(APInterface):
             data["iterations"].update(iterations_list)
         else:
              data["iterations"] = iterations_list
-
+        if "statuses" in data:
+            data["statuses"].update(statuses_list)
+        else:
+             data["statuses"] = statuses_list
         return data

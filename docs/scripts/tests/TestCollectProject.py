@@ -21,7 +21,12 @@ class TestCollectProject(unittest.TestCase):
             "iterations": [
             {"id": "1","title": "Iteration 1","startDate": "2025-02-1","duration": 14},
             {"id": "2","title": "Iteration 2","startDate": "2025-02-15","duration": 14},
-            ]
+            ],
+            "statuses": [
+                "Todo",
+                "In Progress",
+                "Done"
+            ],
         }
         result = self.collector.execute(data, self.metrics, self.members)
         expected_result = {
@@ -143,7 +148,7 @@ class TestCollectProject(unittest.TestCase):
                             "member1": 0,
                             "member2": 0
                         },
-                        "todo": 3,
+                        "todo": 2,
                         "in_progress": 1,
                         "done": 1,
                         "total_issues": 3,
@@ -172,7 +177,12 @@ class TestCollectProject(unittest.TestCase):
             "4": {"title": "t4","assignee": "member2","status": "Done","item_type": "Issue","iteration":None,"issue_type": None},
             },
             "iterations": [
-            ]
+            ],
+            "statuses": [
+                "Todo",
+                "In Progress",
+                "Done"
+            ],
         }
         self.maxDiff = None
         result = self.collector.execute(data, self.metrics, self.members)
@@ -231,7 +241,7 @@ class TestCollectProject(unittest.TestCase):
                             "member1": 0,
                             "member2": 0
                         },
-                        "todo": 4,
+                        "todo": 2,
                         "in_progress": 1,
                         "done": 1,
                         "total_issues": 3,
