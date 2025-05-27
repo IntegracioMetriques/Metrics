@@ -8,7 +8,7 @@ class TestCollectProject(unittest.TestCase):
         self.metrics = {}
         self.members = ['member1', 'member2'] 
         self.collector = CollectProject()
-
+        self.maxDiff = None
     def test_general_projects(self):
 
         data = {
@@ -24,7 +24,6 @@ class TestCollectProject(unittest.TestCase):
             ]
         }
         result = self.collector.execute(data, self.metrics, self.members)
-        print(result)
         expected_result = {
             "project": {
                 "has_iterations" : True,
@@ -39,6 +38,10 @@ class TestCollectProject(unittest.TestCase):
                             "member2": 0,
                             "non_assigned": 1
                         },
+                        "todo_per_member": {
+                            "member1": 0,
+                            "member2": 0
+                        },
                         "in_progress_per_member": {
                             "member1": 0,
                             "member2": 0
@@ -47,6 +50,7 @@ class TestCollectProject(unittest.TestCase):
                             "member1": 0,
                             "member2": 0
                         },
+                        "todo": 1,
                         "in_progress": 0,
                         "done": 0,
                         "total_issues": 1,
@@ -56,6 +60,7 @@ class TestCollectProject(unittest.TestCase):
                         "total_bugs": 0,
                         "total_features_done": 0,
                         "total_features_in_progress": 0,
+                        "total_features_todo": 0,
                         "total": 1
                     },
                     "Iteration 2": {
@@ -63,6 +68,10 @@ class TestCollectProject(unittest.TestCase):
                             "member1": 1,
                             "member2": 0,
                             "non_assigned": 0
+                        },
+                        "todo_per_member": {
+                            "member1": 0,
+                            "member2": 0
                         },
                         "in_progress_per_member": {
                             "member1": 1,
@@ -72,6 +81,7 @@ class TestCollectProject(unittest.TestCase):
                             "member1": 0,
                             "member2": 0
                         },
+                        "todo": 0,
                         "in_progress": 1,
                         "done": 0,
                         "total_issues": 1,
@@ -81,6 +91,7 @@ class TestCollectProject(unittest.TestCase):
                         "total_bugs": 0,
                         "total_features_done": 0,
                         "total_features_in_progress": 0,
+                        "total_features_todo": 0,
                         "total": 1
                     },
                     "no_iteration": {
@@ -88,6 +99,10 @@ class TestCollectProject(unittest.TestCase):
                             "member1": 0,
                             "member2": 0,
                             "non_assigned": 0
+                        },
+                        "todo_per_member": {
+                            "member1": 0,
+                            "member2": 0
                         },
                         "in_progress_per_member": {
                             "member1": 0,
@@ -97,6 +112,7 @@ class TestCollectProject(unittest.TestCase):
                             "member1": 0,
                             "member2": 0
                         },
+                        "todo": 1,
                         "in_progress": 0,
                         "done": 1,
                         "total_issues": 1,
@@ -106,6 +122,7 @@ class TestCollectProject(unittest.TestCase):
                         "total_bugs": 0,
                         "total_features_done": 0,
                         "total_features_in_progress": 0,
+                        "total_features_todo": 0,
                         "total": 2
                     },
                     "total": {
@@ -113,6 +130,10 @@ class TestCollectProject(unittest.TestCase):
                             "member1": 1,
                             "member2": 0,
                             "non_assigned": 1
+                        },
+                        "todo_per_member": {
+                            "member1": 0,
+                            "member2": 0
                         },
                         "in_progress_per_member": {
                             "member1": 1,
@@ -122,6 +143,7 @@ class TestCollectProject(unittest.TestCase):
                             "member1": 0,
                             "member2": 0
                         },
+                        "todo": 3,
                         "in_progress": 1,
                         "done": 1,
                         "total_issues": 3,
@@ -131,6 +153,7 @@ class TestCollectProject(unittest.TestCase):
                         "total_bugs": 0,
                         "total_features_done": 0,
                         "total_features_in_progress": 0,
+                        "total_features_todo": 0,
                         "total": 4
                     },
                 },
@@ -165,6 +188,10 @@ class TestCollectProject(unittest.TestCase):
                             "member2": 0,
                             "non_assigned": 1
                         },
+                        "todo_per_member": {
+                            "member1": 0,
+                            "member2": 0
+                        },
                         "in_progress_per_member": {
                             "member1": 1,
                             "member2": 0
@@ -173,6 +200,7 @@ class TestCollectProject(unittest.TestCase):
                             "member1": 0,
                             "member2": 0
                         },
+                        "todo": 2,
                         "in_progress": 1,
                         "done": 1,
                         "total_issues": 3,
@@ -182,6 +210,7 @@ class TestCollectProject(unittest.TestCase):
                         "total_bugs": 0,
                         "total_features_done": 0,
                         "total_features_in_progress": 0,
+                        "total_features_todo": 0,
                         "total": 4
                     },
                     "total": {
@@ -190,6 +219,10 @@ class TestCollectProject(unittest.TestCase):
                             "member2": 0,
                             "non_assigned": 1
                         },
+                        "todo_per_member": {
+                            "member1": 0,
+                            "member2": 0
+                        },
                         "in_progress_per_member": {
                             "member1": 1,
                             "member2": 0
@@ -198,6 +231,7 @@ class TestCollectProject(unittest.TestCase):
                             "member1": 0,
                             "member2": 0
                         },
+                        "todo": 4,
                         "in_progress": 1,
                         "done": 1,
                         "total_issues": 3,
@@ -207,6 +241,7 @@ class TestCollectProject(unittest.TestCase):
                         "total_bugs": 0,
                         "total_features_done": 0,
                         "total_features_in_progress": 0,
+                        "total_features_todo": 0,
                         "total": 4
                     }
                 }
