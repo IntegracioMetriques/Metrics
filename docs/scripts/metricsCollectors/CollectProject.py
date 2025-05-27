@@ -44,8 +44,6 @@ class CollectProject(CollectorBase):
             for draftIssue in issues:
                 total +=1
                 status = draftIssue['status'].strip().lower().replace(" ", "_")
-                if status in total_by_status:
-                    total_by_status[status] += 1
                 if draftIssue['item_type'] == 'Issue':
                     total_issues +=1
                     if draftIssue['issue_type'] != None:
@@ -58,6 +56,8 @@ class CollectProject(CollectorBase):
                             total_bugs +=1
                         elif draftIssue['issue_type'] == "Task":
                             total_tasks += 1
+                            if status in total_by_status:
+                                total_by_status[status] += 1
                             if draftIssue['assignee'] != None and draftIssue['assignee'] in members:
                                 assigned_draftIssue_per_member[draftIssue['assignee']] +=1
                                 if status in assigned_per_member_by_status:
@@ -110,8 +110,6 @@ class CollectProject(CollectorBase):
             total +=1
             status = draftIssue['status'].strip().lower().replace(" ", "_")
             print(status)
-            if status in total_by_status:
-                total_by_status[status] += 1
             if draftIssue['item_type'] == 'Issue':
                 total_issues +=1
                 if draftIssue['issue_type'] != None:
@@ -124,6 +122,8 @@ class CollectProject(CollectorBase):
                         total_bugs +=1
                     elif draftIssue['issue_type'] == "Task":
                         total_tasks += 1
+                        if status in total_by_status:
+                            total_by_status[status] += 1
                         if draftIssue['assignee'] != None and draftIssue['assignee'] in members:
                             assigned_draftIssue_per_member[draftIssue['assignee']] +=1
                             if status in assigned_per_member_by_status:
