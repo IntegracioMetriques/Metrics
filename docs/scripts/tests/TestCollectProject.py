@@ -23,7 +23,6 @@ class TestCollectProject(unittest.TestCase):
             {"id": "2","title": "Iteration 2","startDate": "2025-02-15","duration": 14},
             ]
         }
-        self.maxDiff = None
         result = self.collector.execute(data, self.metrics, self.members)
         print(result)
         expected_result = {
@@ -55,6 +54,8 @@ class TestCollectProject(unittest.TestCase):
                         "total_features": 0,
                         "total_tasks": 1,
                         "total_bugs": 0,
+                        "total_features_done": 0,
+                        "total_features_in_progress": 0,
                         "total": 1
                     },
                     "Iteration 2": {
@@ -78,6 +79,8 @@ class TestCollectProject(unittest.TestCase):
                         "total_features": 0,
                         "total_tasks": 1,
                         "total_bugs": 0,
+                        "total_features_done": 0,
+                        "total_features_in_progress": 0,
                         "total": 1
                     },
                     "no_iteration": {
@@ -101,6 +104,8 @@ class TestCollectProject(unittest.TestCase):
                         "total_features": 0,
                         "total_tasks": 0,
                         "total_bugs": 0,
+                        "total_features_done": 0,
+                        "total_features_in_progress": 0,
                         "total": 2
                     },
                     "total": {
@@ -124,6 +129,8 @@ class TestCollectProject(unittest.TestCase):
                         "total_features": 0,
                         "total_tasks": 2,
                         "total_bugs": 0,
+                        "total_features_done": 0,
+                        "total_features_in_progress": 0,
                         "total": 4
                     },
                 },
@@ -173,6 +180,8 @@ class TestCollectProject(unittest.TestCase):
                         "total_features": 0,
                         "total_tasks": 2,
                         "total_bugs": 0,
+                        "total_features_done": 0,
+                        "total_features_in_progress": 0,
                         "total": 4
                     },
                     "total": {
@@ -196,6 +205,8 @@ class TestCollectProject(unittest.TestCase):
                         "total_features": 0,
                         "total_tasks": 2,
                         "total_bugs": 0,
+                        "total_features_done": 0,
+                        "total_features_in_progress": 0,
                         "total": 4
                     }
                 }

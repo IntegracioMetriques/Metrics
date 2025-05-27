@@ -40,6 +40,8 @@ class CollectProject(CollectorBase):
             total_features = 0
             total_tasks = 0
             total_bugs = 0
+            total_features_done = 0
+            total_features_in_progress = 0
             for draftIssue in issues:
                 total +=1
                 if draftIssue['status'] == 'Done':
@@ -52,6 +54,10 @@ class CollectProject(CollectorBase):
                         total_issues_with_type +=1
                         if draftIssue['issue_type'] == "Feature":
                             total_features += 1
+                            if draftIssue['status'] == 'Done':
+                                total_features_done += 1
+                            elif draftIssue['status'] == 'In Progress':
+                                total_features_in_progress += 1
                         elif draftIssue['issue_type'] == "Bug":
                             total_bugs +=1
                         elif draftIssue['issue_type'] == "Task":
@@ -67,17 +73,19 @@ class CollectProject(CollectorBase):
 
             assigned_draftIssue_per_member['non_assigned'] = non_assigned
             metrics_by_iteration[iteration_title]= {
-                'assigned_per_member': assigned_draftIssue_per_member,
-                'in_progress_per_member': in_progress_assigned_draftIssues_per_member,
-                'done_per_member': done_assigned_draftIssues_per_member,
-                'in_progress': total_in_progress,
-                'done': total_done,
+                "assigned_per_member": assigned_draftIssue_per_member,
+                "in_progress_per_member": in_progress_assigned_draftIssues_per_member,
+                "done_per_member": done_assigned_draftIssues_per_member,
+                "in_progress": total_in_progress,
+                "done": total_done,
                 "total_issues": total_issues,
                 "total_issues_with_type": total_issues_with_type,
                 "total_features":total_features,
                 "total_tasks": total_tasks,
                 "total_bugs" : total_bugs,
-                'total': total
+                "total_features_done": total_features_done,
+                "total_features_in_progress": total_features_in_progress,
+                "total": total
             }
         iterations = dict(
             sorted(
@@ -97,6 +105,8 @@ class CollectProject(CollectorBase):
         total_features = 0
         total_tasks = 0
         total_bugs = 0
+        total_features_done = 0
+        total_features_in_progress = 0
         for _,draftIssue in draftIssues.items():
             total +=1
             if draftIssue['status'] == 'Done':
@@ -109,6 +119,10 @@ class CollectProject(CollectorBase):
                     total_issues_with_type +=1
                     if draftIssue['issue_type'] == "Feature":
                         total_features += 1
+                        if draftIssue['status'] == 'Done':
+                            total_features_done += 1
+                        elif draftIssue['status'] == 'In Progress':
+                            total_features_in_progress += 1
                     elif draftIssue['issue_type'] == "Bug":
                         total_bugs +=1
                     elif draftIssue['issue_type'] == "Task":
@@ -133,6 +147,8 @@ class CollectProject(CollectorBase):
                 "total_features":total_features,
                 "total_tasks": total_tasks,
                 "total_bugs" : total_bugs,
+                "total_features_done": total_features_done,
+                "total_features_in_progress": total_features_in_progress,
                 'total': total
         }
         metrics['project'] = {
