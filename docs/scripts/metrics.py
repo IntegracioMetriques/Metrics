@@ -5,7 +5,7 @@ from datetime import datetime,timezone,timedelta
 import api
 import metricsCollectors
 import concurrent.futures
-from api import GetCollaborators,GetMembers,GetOrgRepos
+from api import GetCollaborators,GetMembers,GetOrgRepos,GetProject
 
 def load_env_local(path):
     with open(path, 'r') as f:
@@ -102,9 +102,9 @@ def get_metrics():
         instancesConfig = []
         instancesConfig.append(GetOrgRepos())
         instancesConfig.append(GetMembers())
-        data = GetOrgRepos().execute(REPO_OWNER,"",HEADERS_ORG,"",data)
+        instancesConfig.append(GetProject())
         with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
-            futures = [executor.submit(instance.execute,REPO_OWNER,"",HEADERS_ORG,"",data) for instance in instancesConfig]
+            futures = [executor.submit(instance.execute,REPO_OWNER,"",HEADERS_ORG,project_number,data) for instance in instancesConfig]
             for future in concurrent.futures.as_completed(futures):
                 data.update(future.result())  
         if(config["members"] == "both"): instances.append(GetCollaborators())
@@ -124,7 +124,7 @@ def get_metrics():
         repos = [REPO_NAME]
 
     for class_name, class_obj in api.__dict__.items():
-        if isinstance(class_obj, type) and class_name.startswith("Get") and class_name not in ["GetMembers","GetCollaborators","GetOrgRepos"]:
+        if isinstance(class_obj, type) and class_name.startswith("Get") and class_name not in ["GetMembers","GetCollaborators","GetOrgRepos","GetProject"]:
             instances.append(class_obj(PARALLELISM))
     if not PARALLELISM:
         for repo in repos:
