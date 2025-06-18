@@ -1,6 +1,10 @@
 name: Trigger remote workflow
 on:
   push:
+  issues:
+    types: [opened, edited, closed, assigned, unassigned]
+  pull_request:
+    types: [opened,edited,closed]
   workflow_dispatch:
 
 jobs:
@@ -20,8 +24,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.ORG_TOKEN }}
         run: |
+          CLEAN_TOKEN=$(echo "$GITHUB_TOKEN" | tr -d '\n')
           curl -X POST \
             -H "Accept: application/vnd.github.everest-preview+json" \
-            -H "Authorization: token $GITHUB_TOKEN" \
-            https://api.github.com/repos/${REPO}/actions/workflows/metrics.yml/dispatches \
+            -H "Authorization: token $CLEAN_TOKEN" \
+            https://api.github.com/repos/$REPO/actions/workflows/metrics.yml/dispatches \
             -d '{"ref":"gh-pages"}'

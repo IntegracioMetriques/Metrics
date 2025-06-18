@@ -1,5 +1,5 @@
 import unittest
-from metricsCollectors.CollectPullRequests import CollectPullRequests
+from collectors.CollectPullRequests import CollectPullRequests
 
 class TestCollectPullRequests(unittest.TestCase):
 
@@ -40,6 +40,21 @@ class TestCollectPullRequests(unittest.TestCase):
         }
         
         self.assertEqual(result, expected_result)
+
+    def test_pr_merged_by_other_member(self):
+        data = {
+            "pull_requests": {
+                "1": {"state": "MERGED", "author": "member1", "merged": True, "merged_by": "member2"},
+                "2": {"state": "MERGED", "author": "member2", "merged": True, "merged_by": "member2"},
+            }
+        }
+        result = self.collector.execute(data, self.metrics, self.members)
+        self.assertEqual(result["pull_requests"]["merged"], 2)
+        self.assertEqual(result["pull_requests"]["merged_per_member"]["member1"], 0)
+        self.assertEqual(result["pull_requests"]["merged_per_member"]["member2"], 2)
+        self.assertEqual(result["pull_requests"]["not_merged_by_author"], 1)
+        self.assertEqual(result["pull_requests"]["total"], 2)
+
 
 if __name__ == '__main__':
     unittest.main()

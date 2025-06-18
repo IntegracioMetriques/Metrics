@@ -109,7 +109,6 @@ class CollectProject(CollectorBase):
         for _,draftIssue in draftIssues.items():
             total +=1
             status = draftIssue['status'].strip().lower().replace(" ", "_")
-            print(status)
             if draftIssue['item_type'] == 'Issue':
                 total_issues +=1
                 if draftIssue['issue_type'] != None:

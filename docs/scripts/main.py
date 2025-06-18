@@ -3,7 +3,7 @@ import sys
 import json
 from datetime import datetime,timezone,timedelta
 import api
-import metricsCollectors
+import collectors
 import concurrent.futures
 from api import GetCollaborators,GetMembers,GetOrgRepos,GetProject
 
@@ -20,7 +20,6 @@ GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 ORG_TOKEN = os.getenv("ORG_TOKEN")
 REPO = os.getenv("GITHUB_REPOSITORY")
 REPO_OWNER,REPO_NAME = os.getenv("GITHUB_REPOSITORY").split("/")
-parallelism_str = os.getenv("PARALLELISM")
 PARALLELISM = True
 HEADERS_REPO = {
     "Authorization": f"token {GITHUB_TOKEN}",
@@ -139,13 +138,15 @@ def get_metrics():
     members = data['members']  
     members = [m for m in members if m not in config['excluded_members']]
     instances = []
-    for class_name, class_obj in metricsCollectors.__dict__.items():
+    for class_name, class_obj in collectors.__dict__.items():
         if isinstance(class_obj, type) and class_name.startswith('Collect') and not bool(getattr(class_obj, "__abstractmethods__", False)):
             instances.append(class_obj())
     for instance in instances:
        metrics = instance.execute(data,metrics,members)
     with open(metrics_path, "w") as f:
         json.dump(metrics, f, indent=4)
+    with open("./data.json", "w") as f:
+        json.dump(data, f, indent=4)
 
 def daily_metrics():
     metrics_path = "../metrics.json"

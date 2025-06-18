@@ -1,5 +1,5 @@
 import unittest
-from metricsCollectors.CollectIssues import CollectIssues
+from collectors.CollectIssues import CollectIssues
 
 class TestCollectIssues(unittest.TestCase):
 

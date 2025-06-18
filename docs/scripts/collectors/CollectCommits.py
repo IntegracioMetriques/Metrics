@@ -1,7 +1,7 @@
 from .CollectorBase import CollectorBase
 from datetime import datetime, timedelta,timezone
 
-class CollectCommitsMetrics(CollectorBase):
+class CollectCommits(CollectorBase):
     def execute(self, data: dict, metrics: dict, members) -> dict:
         commits = data['commits']
         commits_per_member = {member: 0 for member in members}

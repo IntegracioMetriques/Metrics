@@ -1,5 +1,5 @@
 import unittest
-from metricsCollectors.CollectCommitsMetrics import CollectCommitsMetrics
+from collectors.CollectCommits import CollectCommits
 from unittest.mock import patch
 from datetime import datetime, timezone
 import datetime as real_datetime
@@ -10,7 +10,7 @@ class TestCollectCommitsMetrics(unittest.TestCase):
 
         self.metrics = {}
         self.members = ['member1', 'member2'] 
-        self.collector = CollectCommitsMetrics()
+        self.collector = CollectCommits()
         
     def test_general_commits(self):
         data = {
@@ -78,7 +78,7 @@ class TestCollectCommitsMetrics(unittest.TestCase):
         expected_result['commit_merges'] = 1
         self.assertEqual(result['commit_merges'], expected_result['commit_merges'])
 
-    @patch('metricsCollectors.CollectCommitsMetrics.datetime') 
+    @patch('collectors.CollectCommits.datetime') 
     def test_commit_streak(self, mock_datetime):
         mock_datetime.strptime = real_datetime.datetime.strptime
         mock_datetime.now.return_value = datetime(2025, 4, 22, 1, 1, 1, tzinfo=timezone.utc)
