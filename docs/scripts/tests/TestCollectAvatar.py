@@ -1,5 +1,5 @@
 import unittest
-from metricsCollectors.CollectAvatar import CollectAvatar
+from collectors.CollectAvatar import CollectAvatar
 
 class TestCollectAvatar(unittest.TestCase):
 
