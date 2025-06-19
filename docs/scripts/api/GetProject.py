@@ -4,7 +4,10 @@ import requests
 class GetProject(APInterface):
     def execute(self, owner_name, repo_name, headers, project_number, data: dict) -> dict:
         if project_number <= 0: 
-            data['project'] = {}
+            data['project'] = {
+            }
+            data["iterations"] = []
+            data["statuses"] = []
             return data
         url = "https://api.github.com/graphql"
         cursor = None
